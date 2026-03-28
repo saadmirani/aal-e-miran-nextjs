@@ -19,6 +19,11 @@ export default function BiographyPage() {
    }, []);
 
    const language = mounted ? (languageContext?.language || 'en') : 'en';
+   const setLanguage = languageContext?.setLanguage || (() => { });
+
+   const toggleLanguage = () => {
+      setLanguage(language === 'en' ? 'ur' : 'en');
+   };
 
    // Simulated data - in production, this would be loaded from files
    const biographyContent = useMemo(() => {
@@ -128,11 +133,25 @@ slug: "rahman-bakhsh-qadri"
 
    return (
       <div className="biography-page">
-         <button className="back-button" onClick={() => window.history.back()}>
-            ← Back
-         </button>
+         <div className="controls-bar">
+            <button className="back-button" onClick={() => window.history.back()} title="Go back">
+               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M19 12H5M12 19l-7-7 7-7" />
+               </svg>
+               <span>Back</span>
+            </button>
+            <button
+               className={`lang-toggle ${language}`}
+               onClick={toggleLanguage}
+               title="Toggle Language"
+            >
+               <span className="toggle-label en">EN</span>
+               <span className="toggle-label ur">اردو</span>
+               <span className="toggle-slider"></span>
+            </button>
+         </div>
 
-         <article className="biography-container">
+         <article className="biography-container" dir={language === 'ur' ? 'rtl' : 'ltr'}>
             <div className="markdown-content">
                <ReactMarkdown
                   components={{
@@ -166,22 +185,46 @@ slug: "rahman-bakhsh-qadri"
           padding: 0;
         }
 
+        .controls-bar {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 12px;
+          margin-bottom: 24px;
+          padding: 0 20px;
+        }
+
         .back-button {
-          background: white;
-          border: 1px solid #e5e7eb;
+          display: inline-flex;
+          align-items: center;
+          gap: 8px;
+          background: linear-gradient(90deg, #1e3c72 0%, #2a5298 100%);
+          color: white;
+          border: none;
           padding: 10px 16px;
           border-radius: 8px;
           cursor: pointer;
           font-size: 14px;
-          color: #374151;
-          transition: all 0.2s ease;
-          margin-bottom: 24px;
-          display: inline-block;
+          font-weight: 500;
+          transition: all 0.3s ease;
+          box-shadow: 0 2px 4px rgba(30, 60, 114, 0.15);
+          flex-shrink: 0;
         }
 
         .back-button:hover {
-          background: #f3f4f6;
-          border-color: #d1d5db;
+          box-shadow: 0 4px 12px rgba(30, 60, 114, 0.25);
+          transform: translateY(-1px);
+        }
+
+        .back-button:active {
+          transform: translateY(0);
+        }
+
+        .back-button svg {
+          width: 18px;
+          height: 18px;
+          stroke-linecap: round;
+          stroke-linejoin: round;
         }
 
         .biography-container {

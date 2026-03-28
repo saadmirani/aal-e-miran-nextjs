@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Noto+Nastaliq+Urdu:wght@400;500;600;700&display=swap');
+
 /* Biography Page Styles */
 .biography-title {
    font-size: 42px;
@@ -6,6 +8,10 @@
    margin-bottom: 24px;
    margin-top: 0;
    line-height: 1.2;
+}
+
+.biography-container[dir="rtl"] .biography-title {
+   text-align: right;
 }
 
 .biography-subtitle {
@@ -18,6 +24,10 @@
    padding-bottom: 12px;
 }
 
+.biography-container[dir="rtl"] .biography-subtitle {
+   text-align: right;
+}
+
 .biography-heading {
    font-size: 20px;
    font-weight: 600;
@@ -26,16 +36,30 @@
    margin-bottom: 12px;
 }
 
+.biography-container[dir="rtl"] .biography-heading {
+   text-align: right;
+}
+
 .biography-text {
    font-size: 16px;
    line-height: 1.8;
    color: #4b5563;
    margin-bottom: 16px;
+   text-align: justify;
+}
+
+.biography-container[dir="rtl"] .biography-text {
+   font-family: "Noto Nastaliq Urdu", "Jameel Noori Nastaleeq", serif;
 }
 
 .biography-list {
    margin: 16px 0;
    padding-left: 24px;
+}
+
+.biography-container[dir="rtl"] .biography-list {
+   padding-right: 24px;
+   padding-left: 0;
 }
 
 .biography-list-item {
@@ -44,9 +68,17 @@
    color: #4b5563;
 }
 
+.biography-container[dir="rtl"] .biography-list-item {
+   font-family: "Noto Nastaliq Urdu", "Jameel Noori Nastaleeq", serif;
+}
+
 .biography-strong {
    font-weight: 600;
    color: #1e3c72;
+}
+
+.biography-container[dir="rtl"] .biography-strong {
+   font-family: "Noto Nastaliq Urdu", "Jameel Noori Nastaleeq", serif;
 }
 
 .biography-footer {
@@ -55,6 +87,11 @@
    border-top: 1px solid #e5e7eb;
    color: #6b7280;
    font-size: 14px;
+}
+
+.biography-container[dir="rtl"] .biography-footer {
+   text-align: right;
+   font-family: "Noto Nastaliq Urdu", "Jameel Noori Nastaleeq", serif;
 }
 
 .markdown-content {
@@ -78,4 +115,103 @@
       font-size: 15px;
       line-height: 1.6;
    }
+
+   .controls-bar {
+      gap: 8px;
+   }
+
+   .lang-toggle {
+      width: 90px !important;
+      height: 32px !important;
+      font-size: 11px;
+   }
+
+   .toggle-label.ur {
+      font-size: 10px;
+   }
+}
+
+/* Controls Bar */
+.controls-bar {
+   display: flex;
+   align-items: center;
+   justify-content: space-between;
+   gap: 12px;
+   margin-bottom: 24px;
+   padding: 0 20px;
+}
+
+/* Language Toggle */
+.lang-toggle {
+   position: relative;
+   width: 120px;
+   height: 38px;
+   padding: 3px;
+   border-radius: 20px;
+   border: 1px solid rgba(30, 60, 114, 0.2);
+   background: #f3f4f6;
+   cursor: pointer;
+   display: flex;
+   align-items: center;
+   justify-content: space-between;
+   font-size: 13px;
+   font-weight: 600;
+   color: #1e3c72;
+   overflow: hidden;
+   transition: all 0.3s ease;
+   outline: none;
+}
+
+.lang-toggle:hover {
+   background: #e5e7eb;
+   border-color: rgba(30, 60, 114, 0.3);
+}
+
+.lang-toggle:focus,
+.lang-toggle:focus-visible {
+   outline: none;
+   box-shadow: 0 0 0 3px rgba(30, 60, 114, 0.1);
+}
+
+/* Toggle Labels */
+.toggle-label {
+   width: 50%;
+   text-align: center;
+   z-index: 2;
+   transition: color 0.3s ease;
+   font-family: system-ui, -apple-system, sans-serif;
+}
+
+.toggle-label.ur {
+   font-family: "Noto Nastaliq Urdu", "Jameel Noori Nastaleeq", serif;
+   font-size: 11px;
+   font-weight: 600;
+}
+
+/* Sliding Background */
+.toggle-slider {
+   position: absolute;
+   top: 3px;
+   left: 3px;
+   width: calc(50% - 3px);
+   height: calc(100% - 6px);
+   background: white;
+   border-radius: 16px;
+   transition: transform 0.3s ease;
+   z-index: 1;
+   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+/* When Urdu is active */
+.lang-toggle.ur .toggle-slider {
+   transform: translateX(100%);
+}
+
+/* Text color change depending on active */
+.lang-toggle.en .toggle-label.en {
+   color: #1e3c72;
+}
+
+.lang-toggle.ur .toggle-label.ur {
+   color: #1e3c72;
 }

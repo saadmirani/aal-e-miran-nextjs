@@ -15,7 +15,9 @@ export function LanguageProvider({ children }) {
       // Get language from localStorage or browser preference
       const savedLang = localStorage.getItem('language');
       const browserLang = navigator.language.startsWith('ur') ? 'ur' : 'en';
-      setLanguage(savedLang || browserLang);
+      const initialLang = savedLang || browserLang;
+      setLanguage(initialLang);
+      
       setMounted(true);
    }, []);
 
@@ -25,8 +27,12 @@ export function LanguageProvider({ children }) {
       }
    }, [language, mounted]);
 
+   const handleSetLanguage = (newLang) => {
+      setLanguage(newLang);
+   };
+
    return (
-      <LanguageContext.Provider value={{ language, setLanguage }}>
+      <LanguageContext.Provider value={{ language, setLanguage: handleSetLanguage }}>
          {children}
       </LanguageContext.Provider>
    );
