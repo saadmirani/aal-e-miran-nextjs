@@ -5,6 +5,14 @@ const nextConfig = {
    images: {
       unoptimized: true,
    },
+   webpack: (config, { isServer }) => {
+      // Add support for importing markdown files as raw text
+      config.module.rules.push({
+         test: /\.md$/,
+         use: 'raw-loader',
+      });
+      return config;
+   },
    // For deploying on Vercel with rewrites
    async rewrites() {
       return {

@@ -12,6 +12,8 @@
 
 .biography-container[dir="rtl"] .biography-title {
    text-align: right;
+   font-family: "Noto Nastaliq Urdu", "Jameel Noori Nastaleeq", serif;
+   font-size: 48px;
 }
 
 .biography-subtitle {
@@ -26,6 +28,8 @@
 
 .biography-container[dir="rtl"] .biography-subtitle {
    text-align: right;
+   font-family: "Noto Nastaliq Urdu", "Jameel Noori Nastaleeq", serif;
+   font-size: 32px;
 }
 
 .biography-heading {
@@ -38,6 +42,8 @@
 
 .biography-container[dir="rtl"] .biography-heading {
    text-align: right;
+   font-family: "Noto Nastaliq Urdu", "Jameel Noori Nastaleeq", serif;
+   font-size: 22px;
 }
 
 .biography-text {
@@ -214,4 +220,110 @@
 
 .lang-toggle.ur .toggle-label.ur {
    color: #1e3c72;
+}
+
+/* Page Layout Styles */
+.biography-page {
+   max-width: 900px;
+   margin: 0 auto;
+   padding: 0;
+}
+
+.biography-container {
+   background: white;
+   border-radius: 12px;
+   padding: 40px;
+   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+   border: 1px solid #e5e7eb;
+}
+
+.markdown-content {
+   margin-bottom: 32px;
+}
+
+/* Back Button */
+.back-button {
+   display: inline-flex;
+   align-items: center;
+   gap: 8px;
+   background: linear-gradient(90deg, #1e3c72 0%, #2a5298 100%);
+   color: white;
+   border: none;
+   padding: 10px 16px;
+   border-radius: 8px;
+   cursor: pointer;
+   font-size: 14px;
+   font-weight: 500;
+   transition: all 0.3s ease;
+   box-shadow: 0 2px 4px rgba(30, 60, 114, 0.15);
+   flex-shrink: 0;
+}
+
+.back-button:hover {
+   box-shadow: 0 4px 12px rgba(30, 60, 114, 0.25);
+   transform: translateY(-1px);
+}
+
+.back-button:active {
+   transform: translateY(0);
+}
+
+.back-button svg {
+   width: 18px;
+   height: 18px;
+   stroke-linecap: round;
+   stroke-linejoin: round;
+}
+
+/* Error Container */
+.error-container {
+   text-align: center;
+   padding: 60px 40px;
+   background: white;
+   border-radius: 12px;
+   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.error-container h1 {
+   font-size: 32px;
+   margin-bottom: 16px;
+   color: #1f2937;
+}
+
+.error-container p {
+   color: #6b7280;
+   margin-bottom: 24px;
+   font-size: 16px;
+}
+
+.btn {
+   display: inline-block;
+   padding: 12px 24px;
+   background: linear-gradient(90deg, #1e3c72 0%, #2a5298 100%);
+   color: white;
+   border-radius: 8px;
+   text-decoration: none;
+   font-weight: 600;
+   transition: all 0.2s ease;
+   cursor: pointer;
+   border: none;
+}
+
+.btn:hover {
+   transform: scale(1.02);
+}
+
+@media (max-width: 768px) {
+   .biography-page {
+      padding: 16px;
+   }
+
+   .biography-container {
+      padding: 24px;
+   }
+
+   .controls-bar {
+      padding: 0;
+      margin-bottom: 16px;
+   }
 }

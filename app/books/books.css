@@ -11,6 +11,8 @@
 
 .books-container[dir="rtl"] .book-heading-1 {
    text-align: right;
+   font-family: "Noto Nastaliq Urdu", "Jameel Noori Nastaleeq", serif;
+   font-size: 40px;
 }
 
 .book-heading-1:first-child {
@@ -32,6 +34,8 @@
    border-left: none;
    padding-right: 12px;
    padding-left: 0;
+   font-family: "Noto Nastaliq Urdu", "Jameel Noori Nastaleeq", serif;
+   font-size: 28px;
 }
 
 .book-heading-3 {
@@ -43,6 +47,8 @@
 
 .books-container[dir="rtl"] .book-heading-3 {
    text-align: right;
+   font-family: "Noto Nastaliq Urdu", "Jameel Noori Nastaleeq", serif;
+   font-size: 22px;
 }
 
 .book-text {
@@ -219,4 +225,140 @@
 
 .lang-toggle.ur .toggle-label.ur {
    color: #1e3c72;
+}
+
+/* Page Layout Styles */
+.books-page {
+   max-width: 900px;
+   margin: 0 auto;
+   padding: 0;
+}
+
+.books-container {
+   background: white;
+   border-radius: 12px;
+   padding: 40px;
+   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+   border: 1px solid #e5e7eb;
+}
+
+.book-header {
+   margin-bottom: 32px;
+   border-bottom: 2px solid #e5e7eb;
+   padding-bottom: 24px;
+}
+
+.book-title {
+   font-size: 42px;
+   font-weight: 700;
+   color: #1e3c72;
+   margin: 0 0 16px 0;
+   line-height: 1.2;
+}
+
+.books-container[dir="rtl"] .book-title {
+   text-align: right;
+   font-family: "Noto Nastaliq Urdu", "Jameel Noori Nastaleeq", serif;
+   font-size: 46px;
+}
+
+.book-author {
+   color: #6b7280;
+   font-size: 16px;
+   margin: 0;
+}
+
+.markdown-content {
+   margin-bottom: 32px;
+}
+
+/* Back Button */
+.back-button {
+   display: inline-flex;
+   align-items: center;
+   gap: 8px;
+   background: linear-gradient(90deg, #1e3c72 0%, #2a5298 100%);
+   color: white;
+   border: none;
+   padding: 10px 16px;
+   border-radius: 8px;
+   cursor: pointer;
+   font-size: 14px;
+   font-weight: 500;
+   transition: all 0.3s ease;
+   box-shadow: 0 2px 4px rgba(30, 60, 114, 0.15);
+   flex-shrink: 0;
+}
+
+.back-button:hover {
+   box-shadow: 0 4px 12px rgba(30, 60, 114, 0.25);
+   transform: translateY(-1px);
+}
+
+.back-button:active {
+   transform: translateY(0);
+}
+
+.back-button svg {
+   width: 18px;
+   height: 18px;
+   stroke-linecap: round;
+   stroke-linejoin: round;
+}
+
+/* Error Container */
+.error-container {
+   text-align: center;
+   padding: 60px 40px;
+   background: white;
+   border-radius: 12px;
+   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.error-container h1 {
+   font-size: 32px;
+   margin-bottom: 16px;
+   color: #1f2937;
+}
+
+.error-container p {
+   color: #6b7280;
+   margin-bottom: 24px;
+   font-size: 16px;
+}
+
+.btn {
+   display: inline-block;
+   padding: 12px 24px;
+   background: linear-gradient(90deg, #1e3c72 0%, #2a5298 100%);
+   color: white;
+   border-radius: 8px;
+   text-decoration: none;
+   font-weight: 600;
+   transition: all 0.2s ease;
+   cursor: pointer;
+   border: none;
+}
+
+.btn:hover {
+   transform: scale(1.02);
+}
+
+@media (max-width: 768px) {
+   .books-page {
+      padding: 16px;
+   }
+
+   .books-container {
+      padding: 24px;
+   }
+
+   .book-title {
+      font-size: 28px;
+   }
+
+   .controls-bar {
+      padding: 0;
+      margin-bottom: 16px;
+   }
 }

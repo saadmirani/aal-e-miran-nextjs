@@ -1,8 +1,6 @@
 ---
 title: "Hazrat Rahman Bakhsh Qadri"
 slug: "rahman-bakhsh-qadri"
-date: "2024-01-01"
-author: "Aal-e-Miran"
 ---
 
 # Hazrat Rahman Bakhsh Qadri
@@ -46,15 +44,6 @@ Hazrat Rahman Bakhsh Qadri's spiritual influence extended far and wide. His teac
 
 His spiritual lineage continues through his followers and descendants. Many institutions and khanqahs established by his disciples still operate today, continuing his legacy of spiritual and social service.
 
-## Burial Place
-
-Hazrat Rahman Bakhsh Qadri is buried in a revered location where devotees gather to remember his teachings and seek spiritual blessings.
-
 ## Conclusion
 
 Hazrat Rahman Bakhsh Qadri remains a respected figure in Islamic history, remembered for his scholarship, spiritual wisdom, and significant contributions to the development of Islamic thought and practice in South Asia.
-
----
-
-**Last Updated**: January 2024  
-**Written by**: Aal-e-Miran Archives
