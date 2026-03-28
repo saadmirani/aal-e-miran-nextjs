@@ -17,7 +17,7 @@ export function LanguageProvider({ children }) {
       const browserLang = navigator.language.startsWith('ur') ? 'ur' : 'en';
       const initialLang = savedLang || browserLang;
       setLanguage(initialLang);
-      
+
       setMounted(true);
    }, []);
 
