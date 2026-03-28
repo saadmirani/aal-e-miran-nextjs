@@ -1,0 +1,81 @@
+/* Biography Page Styles */
+.biography-title {
+   font-size: 42px;
+   font-weight: 700;
+   color: #1e3c72;
+   margin-bottom: 24px;
+   margin-top: 0;
+   line-height: 1.2;
+}
+
+.biography-subtitle {
+   font-size: 28px;
+   font-weight: 600;
+   color: #2a5298;
+   margin-top: 32px;
+   margin-bottom: 16px;
+   border-bottom: 2px solid #e5e7eb;
+   padding-bottom: 12px;
+}
+
+.biography-heading {
+   font-size: 20px;
+   font-weight: 600;
+   color: #374151;
+   margin-top: 24px;
+   margin-bottom: 12px;
+}
+
+.biography-text {
+   font-size: 16px;
+   line-height: 1.8;
+   color: #4b5563;
+   margin-bottom: 16px;
+}
+
+.biography-list {
+   margin: 16px 0;
+   padding-left: 24px;
+}
+
+.biography-list-item {
+   margin-bottom: 12px;
+   line-height: 1.6;
+   color: #4b5563;
+}
+
+.biography-strong {
+   font-weight: 600;
+   color: #1e3c72;
+}
+
+.biography-footer {
+   margin-top: 40px;
+   padding-top: 24px;
+   border-top: 1px solid #e5e7eb;
+   color: #6b7280;
+   font-size: 14px;
+}
+
+.markdown-content {
+   margin-bottom: 32px;
+}
+
+@media (max-width: 768px) {
+   .biography-title {
+      font-size: 28px;
+   }
+
+   .biography-subtitle {
+      font-size: 20px;
+   }
+
+   .biography-heading {
+      font-size: 18px;
+   }
+
+   .biography-text {
+      font-size: 15px;
+      line-height: 1.6;
+   }
+}

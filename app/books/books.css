@@ -1,0 +1,82 @@
+/* Books Page Styles */
+.book-heading-1 {
+   font-size: 36px;
+   font-weight: 700;
+   color: #1e3c72;
+   margin: 32px 0 16px 0;
+   line-height: 1.2;
+}
+
+.book-heading-1:first-child {
+   margin-top: 0;
+}
+
+.book-heading-2 {
+   font-size: 26px;
+   font-weight: 600;
+   color: #2a5298;
+   margin: 28px 0 12px 0;
+   border-left: 4px solid #2a5298;
+   padding-left: 12px;
+}
+
+.book-heading-3 {
+   font-size: 20px;
+   font-weight: 600;
+   color: #374151;
+   margin: 20px 0 10px 0;
+}
+
+.book-text {
+   font-size: 16px;
+   line-height: 1.8;
+   color: #4b5563;
+   margin-bottom: 16px;
+}
+
+.book-list {
+   margin: 16px 0;
+   padding-left: 24px;
+}
+
+.book-list-item {
+   margin-bottom: 12px;
+   line-height: 1.6;
+   color: #4b5563;
+}
+
+.book-strong {
+   font-weight: 600;
+   color: #1e3c72;
+}
+
+.book-footer {
+   margin-top: 40px;
+   padding-top: 24px;
+   border-top: 1px solid #e5e7eb;
+   color: #6b7280;
+   font-size: 14px;
+}
+
+.markdown-content {
+   margin-bottom: 32px;
+}
+
+@media (max-width: 768px) {
+   .book-heading-1 {
+      font-size: 24px;
+   }
+
+   .book-heading-2 {
+      font-size: 20px;
+   }
+
+   .book-heading-3 {
+      font-size: 16px;
+   }
+
+   .book-text {
+      font-size: 15px;
+      line-height: 1.6;
+   }
+}
