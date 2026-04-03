@@ -46,10 +46,3 @@ Taking into account all these traditions and chronological indicators, it may be
 ```
 Miran Syed Hakim Rahman Bakhsh Qadri --> Miran Syed Safdar Bakhsh Qadri --> Miran Syed Shah Aalam Qadri --> Miran Syed Ghulam Saroor Qadri --> Miran Syed Alim al-Din Qadri --> Miran Syed Imam al-Din Qadri --> Miran Syed Ali Qadri --> Miran Syed Shah Aalam Qadri --> Miran Syed Shah Muhammad Qadri --> Miran Syed Shah Ali First (alias Saif al-Zamaan Qadri) --> Miran Syed Shah Hassan Gesu Daraz Qadri --> Miran Syed Shah Qutb Aalam (alias Miran Bhik Qadri)
 ```
-
----
-
-## Published Works
-
-To be documented
-
