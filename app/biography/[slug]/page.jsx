@@ -87,6 +87,8 @@ export default function BiographyPage() {
                      ul: ({ node, ...props }) => <ul className="biography-list" {...props} />,
                      li: ({ node, ...props }) => <li className="biography-list-item" {...props} />,
                      strong: ({ node, ...props }) => <strong className="biography-strong" {...props} />,
+                     code: ({ node, inline, ...props }) => inline ? <code {...props} /> : <code {...props} />,
+                     pre: ({ node, ...props }) => <pre {...props} />,
                   }}
                >
                   {mdContent}
