@@ -4,6 +4,9 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import './view-all.css';
 
+// Prevent static generation for this page
+export const dynamic = 'force-dynamic';
+
 export default function ViewAllBiographies() {
    const router = useRouter();
    const [biographies, setBiographies] = useState([]);

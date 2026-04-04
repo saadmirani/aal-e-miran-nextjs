@@ -4,6 +4,9 @@ import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import './view.css';
 
+// Prevent static generation for this page
+export const dynamic = 'force-dynamic';
+
 export default function ViewBiography() {
    const router = useRouter();
    const searchParams = useSearchParams();
