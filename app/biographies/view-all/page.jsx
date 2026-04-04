@@ -55,6 +55,10 @@ export default function ViewAllBiographies() {
       window.history.back();
    };
 
+   const handleGoToDashboard = () => {
+      window.location.href = '/admin/dashboard';
+   };
+
    const handleViewBiography = (bio) => {
       const slug = (bio.english?.name || bio.urdu?.name || '')
          .toLowerCase()
@@ -83,6 +87,9 @@ export default function ViewAllBiographies() {
                   </button>
                   <button onClick={handleGoReactHome} className="btn btn-primary">
                      <i className="fas fa-home"></i> Home
+                  </button>
+                  <button onClick={handleGoToDashboard} className="btn btn-success">
+                     <i className="fas fa-tachometer-alt"></i> Dashboard
                   </button>
                </div>
 

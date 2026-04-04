@@ -128,7 +128,6 @@ export default function ViewBiography() {
                      <button
                         className={`lang-toggle ${language === 'urdu' ? 'ur' : 'en'}`}
                         onClick={() => setLanguage(language === 'english' ? 'urdu' : 'english')}
-                        title="Toggle Language"
                      >
                         <span className="toggle-label en">EN</span>
                         <span className="toggle-label ur">اردو</span>
