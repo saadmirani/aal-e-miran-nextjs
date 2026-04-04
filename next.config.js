@@ -11,6 +11,17 @@ const nextConfig = {
          test: /\.md$/,
          use: 'raw-loader',
       });
+
+      // Handle firebase-admin in edge runtime (middleware)
+      if (!isServer) {
+         config.resolve.fallback = {
+            ...config.resolve.fallback,
+            fs: false,
+            path: false,
+            crypto: false,
+         };
+      }
+
       return config;
    },
    // For deploying on Vercel with rewrites

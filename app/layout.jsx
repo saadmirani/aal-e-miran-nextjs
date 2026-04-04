@@ -1,4 +1,5 @@
 import React from 'react';
+import 'bootstrap/dist/css/bootstrap.min.css';
 import Navbar from '@/components/Navbar';
 import { LanguageProvider } from '@/context/LanguageContext';
 import './layout.css';
@@ -17,6 +18,10 @@ export default function RootLayout({ children }) {
             <link
                href="https://fonts.googleapis.com/css2?family=Noto+Nastaliq+Urdu:wght@400;500;600;700&display=swap"
                rel="stylesheet"
+            />
+            <link
+               rel="stylesheet"
+               href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
             />
          </head>
          <body>

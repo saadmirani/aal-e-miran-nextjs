@@ -1,0 +1,76 @@
+.modal-overlay {
+   position: fixed;
+   top: 0;
+   left: 0;
+   right: 0;
+   bottom: 0;
+   background: rgba(0, 0, 0, 0.5);
+   display: flex;
+   align-items: center;
+   justify-content: center;
+   z-index: 1000;
+   padding: 20px;
+}
+
+/* Bootstrap Modal Centering */
+.modal.d-block {
+   position: fixed !important;
+   top: 0 !important;
+   left: 0 !important;
+   right: 0 !important;
+   bottom: 0 !important;
+   width: 100% !important;
+   height: 100vh !important;
+   display: flex !important;
+   align-items: center !important;
+   justify-content: center !important;
+   z-index: 1000 !important;
+}
+
+.modal-dialog {
+   margin: 0 !important;
+   max-height: 90vh !important;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+   .modal-overlay {
+      padding: 10px;
+   }
+
+   .modal-content {
+      max-height: 90vh;
+   }
+
+   .modal-header {
+      padding: 15px;
+   }
+
+   .modal-body {
+      padding: 15px;
+   }
+
+   .list-controls {
+      flex-direction: column;
+   }
+
+   .form-actions {
+      flex-direction: column-reverse;
+   }
+
+   .btn {
+      width: 100%;
+   }
+
+   .contributors-table,
+   .admins-table {
+      font-size: 12px;
+   }
+
+   .contributors-table th,
+   .admins-table th,
+   .contributors-table td,
+   .admins-table td {
+      padding: 8px;
+   }
+}

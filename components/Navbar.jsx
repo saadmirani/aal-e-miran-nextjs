@@ -26,7 +26,7 @@ export default function Navbar() {
       <div className="navbar-left">
         <Link href="/" className="navbar-brand">
           <LogoSVG />
-          <h1 className="navbar-title">Bazm-e-Saadaat</h1>
+          <h1 className="navbar-title text-white">Bazm-e-Saadaat</h1>
         </Link>
       </div>
     </nav>

@@ -1,32 +1,32 @@
 'use client';
 
 export default function Home() {
-   return (
-      <div className="home-page">
-         <div className="hero-section">
-            <h1>Biographies & Books</h1>
-            <p>Explore the life and teachings of Islamic saints and scholars</p>
-         </div>
+  return (
+    <div className="home-page">
+      <div className="hero-section">
+        <h1>Biographies & Books</h1>
+        <p>Explore the life and teachings of Islamic saints and scholars</p>
+      </div>
 
-         <div className="content-grid">
-            <div className="section-card">
-               <h2>📖 Biographies</h2>
-               <p>Discover detailed biographies of renowned Sufi saints and Islamic scholars. Learn about their life, teachings, and spiritual contributions.</p>
-               <a href="/biography/rahman-bakhsh-qadri" className="btn btn-primary">
-                  View Sample Biography
-               </a>
-            </div>
+      <div className="content-grid">
+        <div className="section-card">
+          <h2>📖 Biographies</h2>
+          <p>Discover detailed biographies of renowned Sufi saints and Islamic scholars. Learn about their life, teachings, and spiritual contributions.</p>
+          <a href="/biographies/view-all" className="btn btn-primary">
+            Read Biographies
+          </a>
+        </div>
 
-            <div className="section-card">
-               <h2>📚 Books</h2>
-               <p>Read important books and texts about Islamic spirituality, genealogy, and scholarly works.</p>
-               <a href="/books/kitab-ul-ansab" className="btn btn-primary">
-                  View Sample Book
-               </a>
-            </div>
-         </div>
+        <div className="section-card">
+          <h2>📚 Books</h2>
+          <p>Read important books and texts about Islamic spirituality, genealogy, and scholarly works.</p>
+          <button className="btn btn-primary" disabled title="Coming soon">
+            Read Books
+          </button>
+        </div>
+      </div>
 
-         <style jsx>{`
+      <style jsx>{`
         .home-page {
           max-width: 1200px;
           margin: 0 auto;
@@ -104,9 +104,18 @@ export default function Home() {
           color: white;
         }
 
-        .btn-primary:hover {
+        .btn-primary:hover:not(:disabled) {
           transform: scale(1.02);
           box-shadow: 0 2px 8px rgba(30, 60, 114, 0.3);
+        }
+
+        .btn-primary:disabled {
+          opacity: 0.6;
+          cursor: not-allowed;
+        }
+
+        .btn-primary:disabled:hover {
+          transform: none;
         }
 
         @media (max-width: 768px) {
@@ -123,6 +132,6 @@ export default function Home() {
           }
         }
       `}</style>
-      </div>
-   );
+    </div>
+  );
 }

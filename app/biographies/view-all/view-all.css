@@ -1,0 +1,355 @@
+.view-all-container {
+   min-height: 100vh;
+   background: #f5f5f5;
+   display: flex;
+   flex-direction: column;
+}
+
+/* Header */
+.view-all-header {
+   background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+   color: white;
+   padding: 40px 20px;
+   display: flex;
+   justify-content: space-between;
+   align-items: flex-start;
+   gap: 20px;
+}
+
+.header-content {
+   flex: 1;
+}
+
+.view-all-header h1 {
+   font-size: 2.5rem;
+   margin: 0 0 10px 0;
+   font-weight: 600;
+   color: white;
+}
+
+.view-all-header p {
+   font-size: 1.1rem;
+   color: #cbd5e0;
+   margin: 0;
+}
+
+.btn-home {
+   background: #48bb78;
+   color: white;
+   border: none;
+   padding: 12px 24px;
+   border-radius: 6px;
+   font-size: 1rem;
+   cursor: pointer;
+   transition: all 0.3s ease;
+   white-space: nowrap;
+   display: flex;
+   align-items: center;
+   gap: 8px;
+   font-weight: 500;
+}
+
+.btn-home svg {
+   width: 18px;
+   height: 18px;
+   stroke-width: 2.5;
+}
+
+.btn-home:hover {
+   background: #38a169;
+   transform: translateY(-2px);
+   box-shadow: 0 4px 12px rgba(72, 187, 120, 0.3);
+}
+
+/* Main Content */
+.view-all-main {
+   flex: 1;
+   padding: 40px 20px;
+}
+
+.view-all-wrapper {
+   max-width: 1200px;
+   margin: 0 auto;
+}
+
+/* Search Section */
+.search-section {
+   margin-bottom: 30px;
+}
+
+.search-input {
+   width: 100%;
+   padding: 15px 20px;
+   font-size: 1rem;
+   border: 2px solid #e2e8f0;
+   border-radius: 8px;
+   background: white;
+   transition: border-color 0.3s ease;
+}
+
+.search-input:focus {
+   outline: none;
+   border-color: #4299e1;
+   box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.1);
+}
+
+.search-info {
+   font-size: 0.95rem;
+   color: #718096;
+   margin: 10px 0 0 0;
+}
+
+/* Loading State */
+.loading-state {
+   text-align: center;
+   padding: 60px 20px;
+   background: white;
+   border-radius: 8px;
+}
+
+.spinner {
+   width: 50px;
+   height: 50px;
+   border: 4px solid #e2e8f0;
+   border-top-color: #4299e1;
+   border-radius: 50%;
+   animation: spin 0.8s linear infinite;
+   margin: 0 auto 20px;
+}
+
+@keyframes spin {
+   0% {
+      transform: rotate(0deg);
+   }
+
+   100% {
+      transform: rotate(360deg);
+   }
+}
+
+.loading-state p {
+   color: #718096;
+   font-size: 1.1rem;
+}
+
+/* Error State */
+.error-state {
+   background: #fed7d7;
+   border: 2px solid #fc8181;
+   border-radius: 8px;
+   padding: 30px;
+   text-align: center;
+}
+
+.error-state p {
+   color: #c53030;
+   font-size: 1.1rem;
+   margin: 0 0 20px 0;
+}
+
+.btn-retry {
+   background: #e53e3e;
+   color: white;
+   border: none;
+   padding: 10px 20px;
+   border-radius: 6px;
+   cursor: pointer;
+   transition: all 0.3s ease;
+}
+
+.btn-retry:hover {
+   background: #c53030;
+}
+
+/* Empty State */
+.empty-state {
+   background: white;
+   border-radius: 8px;
+   padding: 60px 20px;
+   text-align: center;
+}
+
+.empty-state p {
+   color: #718096;
+   font-size: 1.1rem;
+   margin: 0;
+}
+
+/* Table Wrapper */
+.table-wrapper {
+   background: white;
+   border-radius: 8px;
+   overflow: hidden;
+   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.biographies-table {
+   width: 100%;
+   border-collapse: collapse;
+}
+
+.biographies-table thead {
+   background: #2d3748;
+   color: white;
+   font-weight: 600;
+}
+
+.biographies-table th {
+   padding: 18px 20px;
+   text-align: left;
+   font-size: 0.95rem;
+   letter-spacing: 0.5px;
+}
+
+.biographies-table td {
+   padding: 18px 20px;
+   border-top: 1px solid #e2e8f0;
+}
+
+.biography-row {
+   transition: background 0.2s ease;
+}
+
+.biography-row:hover {
+   background: #f9fafb;
+}
+
+.col-name {
+   font-weight: 500;
+}
+
+.bio-name {
+   color: #2d3748;
+   font-size: 1.05rem;
+}
+
+.col-father {
+   color: #4a5568;
+   font-size: 0.95rem;
+}
+
+.col-dates {
+   color: #718096;
+   font-size: 0.9rem;
+   font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+}
+
+.col-action {
+   text-align: center;
+}
+
+.btn-view {
+   background: #4299e1;
+   color: white;
+   border: none;
+   padding: 8px 16px;
+   border-radius: 4px;
+   font-size: 0.9rem;
+   cursor: pointer;
+   transition: all 0.3s ease;
+   font-weight: 500;
+}
+
+.btn-view:hover {
+   background: #3182ce;
+   transform: translateY(-1px);
+   box-shadow: 0 2px 8px rgba(66, 153, 225, 0.3);
+}
+
+.btn-view:active {
+   transform: translateY(0);
+}
+
+/* Footer */
+.view-all-footer {
+   background: white;
+   border-top: 1px solid #e2e8f0;
+   padding: 20px;
+   text-align: center;
+}
+
+.btn-home-footer {
+   background: #48bb78;
+   color: white;
+   border: none;
+   padding: 12px 24px;
+   border-radius: 6px;
+   font-size: 1rem;
+   cursor: pointer;
+   transition: all 0.3s ease;
+}
+
+.btn-home-footer:hover {
+   background: #38a169;
+   transform: translateY(-2px);
+   box-shadow: 0 4px 12px rgba(72, 187, 120, 0.3);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+   .view-all-header {
+      flex-direction: column;
+      align-items: stretch;
+   }
+
+   .btn-home {
+      width: 100%;
+   }
+
+   .view-all-header h1 {
+      font-size: 1.8rem;
+   }
+
+   .biographies-table {
+      font-size: 0.9rem;
+   }
+
+   .biographies-table th,
+   .biographies-table td {
+      padding: 12px 10px;
+   }
+
+   .bio-name {
+      font-size: 0.95rem;
+   }
+
+   .col-action {
+      min-width: 80px;
+   }
+
+   .btn-view {
+      padding: 6px 12px;
+      font-size: 0.85rem;
+   }
+}
+
+@media (max-width: 480px) {
+   .view-all-header {
+      padding: 30px 15px;
+   }
+
+   .view-all-header h1 {
+      font-size: 1.5rem;
+   }
+
+   .view-all-header p {
+      font-size: 0.9rem;
+   }
+
+   .biographies-table th:nth-child(2),
+   .biographies-table td:nth-child(2) {
+      display: none;
+   }
+
+   .biographies-table th {
+      padding: 12px 8px;
+   }
+
+   .biographies-table td {
+      padding: 12px 8px;
+   }
+
+   .bio-name {
+      font-size: 0.85rem;
+   }
+}

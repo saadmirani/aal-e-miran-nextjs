@@ -16,6 +16,7 @@
    align-items: center;
    gap: 12px;
    min-width: 0;
+   padding-left: 16px;
 }
 
 .navbar-brand {
@@ -32,107 +33,12 @@
    opacity: 0.9;
 }
 
-.navbar-logo {
-   width: 36px;
-   height: 36px;
-   display: block;
-   flex-shrink: 0;
-   padding: 0;
-   margin: 0;
-   filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.15));
-}
-
 .navbar-title {
    font-size: 24px;
    font-weight: 700;
    letter-spacing: 1px;
    margin: 0;
    white-space: nowrap;
-}
-
-.navbar-right {
-   display: flex;
-   align-items: center;
-   gap: 16px;
-}
-
-/* Language Toggle */
-.language-toggle {
-   display: flex;
-   align-items: center;
-}
-
-.lang-toggle {
-   position: relative;
-   width: 120px;
-   height: 38px;
-   padding: 3px;
-   border-radius: 20px;
-   border: 1px solid rgba(255, 255, 255, 0.35);
-   background: rgba(255, 255, 255, 0.15);
-   backdrop-filter: blur(6px);
-   cursor: pointer;
-   display: flex;
-   align-items: center;
-   justify-content: space-between;
-   font-size: 13px;
-   font-weight: 600;
-   color: #fff;
-   overflow: hidden;
-   transition: all 0.3s ease;
-   outline: none;
-}
-
-.lang-toggle:hover {
-   background: rgba(255, 255, 255, 0.25);
-}
-
-.lang-toggle:focus,
-.lang-toggle:focus-visible {
-   outline: none;
-   box-shadow: none;
-}
-
-/* Toggle Labels */
-.toggle-label {
-   width: 50%;
-   text-align: center;
-   z-index: 2;
-   transition: color 0.3s ease;
-   font-family: system-ui, -apple-system, sans-serif;
-}
-
-.toggle-label.ur {
-   font-family: "Noto Nastaliq Urdu", "Jameel Noori Nastaleeq", serif;
-   font-size: 11px;
-   font-weight: 600;
-}
-
-/* Sliding Background */
-.toggle-slider {
-   position: absolute;
-   top: 3px;
-   left: 3px;
-   width: calc(50% - 3px);
-   height: calc(100% - 6px);
-   background: #ffffff;
-   border-radius: 16px;
-   transition: transform 0.3s ease;
-   z-index: 1;
-}
-
-/* When Urdu is active */
-.lang-toggle.ur .toggle-slider {
-   transform: translateX(100%);
-}
-
-/* Text color change depending on active */
-.lang-toggle.en .toggle-label.en {
-   color: #1e3c72;
-}
-
-.lang-toggle.ur .toggle-label.ur {
-   color: #1e3c72;
 }
 
 @media (max-width: 768px) {
@@ -143,30 +49,11 @@
    .navbar-title {
       font-size: 18px;
    }
-
-   .lang-toggle {
-      width: 100px;
-      height: 34px;
-   }
-
-   .toggle-label {
-      font-size: 12px;
-   }
 }
 
 @media (max-width: 480px) {
    .navbar-title {
       font-size: 16px;
       letter-spacing: 0.5px;
-   }
-
-   .lang-toggle {
-      width: 90px;
-      height: 32px;
-      font-size: 11px;
-   }
-
-   .toggle-label.ur {
-      font-size: 10px;
    }
 }
