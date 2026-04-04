@@ -584,6 +584,94 @@
    min-height: auto;
 }
 
+/* Custom Field Input Group */
+.custom-field-input-group {
+   display: flex;
+   gap: 12px;
+   margin-bottom: 16px;
+   flex-wrap: wrap;
+   align-items: flex-end;
+}
+
+.custom-field-input {
+   flex: 1;
+   min-width: 200px;
+   padding: 10px 12px;
+   border: 1px solid #cbd5e0;
+   border-radius: 6px;
+   font-size: 14px;
+   font-family: inherit;
+   transition: all 0.2s ease;
+}
+
+.custom-field-input:focus {
+   outline: none;
+   border-color: #667eea;
+   box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.custom-field-select {
+   padding: 10px 12px;
+   border: 1px solid #cbd5e0;
+   border-radius: 6px;
+   font-size: 14px;
+   font-family: inherit;
+   background-color: white;
+   cursor: pointer;
+   transition: all 0.2s ease;
+   min-width: 140px;
+}
+
+.custom-field-select:focus {
+   outline: none;
+   border-color: #667eea;
+   box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.custom-field-btn {
+   white-space: nowrap;
+   min-width: 120px;
+}
+
+/* Custom Fields Container */
+.custom-fields-container {
+   background: #f7fafc;
+   padding: 16px;
+   border-radius: 8px;
+   border: 1px solid #e2e8f0;
+}
+
+.custom-fields-container h4 {
+   margin: 0 0 16px 0;
+   font-size: 14px;
+   font-weight: 700;
+   color: #2d3748;
+}
+
+/* Custom Field Row */
+.custom-field-row {
+   display: flex;
+   justify-content: space-between;
+   align-items: center;
+   padding: 12px 0;
+   border-bottom: 1px solid #e2e8f0;
+   gap: 12px;
+}
+
+.custom-field-row:last-child {
+   border-bottom: none;
+   padding-bottom: 0;
+}
+
+.custom-field-label {
+   color: #2d3748;
+   font-size: 14px;
+   font-weight: 500;
+   flex: 1;
+   min-width: 0;
+   word-break: break-word;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
    .add-biography-container {
@@ -602,6 +690,37 @@
 
    .form-section {
       padding: 16px;
+   }
+
+   .custom-field-input-group {
+      flex-direction: column;
+      gap: 10px;
+      align-items: stretch;
+   }
+
+   .custom-field-input {
+      min-width: 100%;
+      width: 100%;
+   }
+
+   .custom-field-select {
+      min-width: 100%;
+      width: 100%;
+   }
+
+   .custom-field-btn {
+      width: 100%;
+   }
+
+   .custom-field-row {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 12px 0;
+   }
+
+   .custom-field-label {
+      width: 100%;
    }
 
    .form-actions {

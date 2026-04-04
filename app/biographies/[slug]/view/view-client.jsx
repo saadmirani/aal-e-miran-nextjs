@@ -44,6 +44,10 @@ export default function ViewBiographyClient() {
       window.location.href = '/';
    };
 
+   const handleGoReactHome = () => {
+      window.location.href = 'https://www.bazmesaadaat.org';
+   };
+
    const handleGoBack = () => {
       router.push('/biographies/view-all');
    };
@@ -107,6 +111,9 @@ export default function ViewBiographyClient() {
                   </p>
                </div>
                <div className="header-actions">
+                  <button onClick={handleGoReactHome} className="btn btn-secondary btn-sm">
+                     <i className="fas fa-home"></i> Main Home
+                  </button>
                   <button className="btn-back" onClick={handleGoBack}>
                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                         <path d="M19 12H5M12 19l-7-7 7-7" />

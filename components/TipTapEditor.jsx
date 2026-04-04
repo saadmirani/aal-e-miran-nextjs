@@ -1,6 +1,7 @@
 'use client';
 
 import { useEditor, EditorContent } from '@tiptap/react';
+import { useEffect } from 'react';
 import StarterKit from '@tiptap/starter-kit';
 import TextAlign from '@tiptap/extension-text-align';
 import './TipTapEditor.css';
@@ -48,6 +49,30 @@ export default function TipTapEditor({ value, onChange, placeholder, isRTL = fal
       },
       immediatelyRender: false,
    });
+
+   // Sync editor content when value prop changes (language switch, etc.)
+   useEffect(() => {
+      if (editor) {
+         const currentContent = editor.getHTML();
+         if (currentContent !== value && value !== undefined) {
+            editor.commands.setContent(value || '');
+         }
+      }
+   }, [value, editor]);
+
+   // Sync RTL direction when isRTL changes
+   useEffect(() => {
+      if (editor) {
+         editor.setOptions({
+            editorProps: {
+               attributes: {
+                  class: `editor-content ${isRTL ? 'editor-rtl' : ''}`,
+                  dir: isRTL ? 'rtl' : 'ltr',
+               },
+            },
+         });
+      }
+   }, [isRTL, editor]);
 
    if (!editor) {
       return null;

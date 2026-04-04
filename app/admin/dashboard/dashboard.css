@@ -165,6 +165,42 @@
    gap: 24px;
 }
 
+/* Back Navigation */
+.dashboard-back-nav {
+   display: flex;
+   gap: 12px;
+   padding: 0 0 12px 0;
+   border-bottom: 1px solid #e2e8f0;
+}
+
+.btn-back-nav {
+   display: inline-flex;
+   align-items: center;
+   gap: 6px;
+   padding: 8px 16px;
+   background: #1e3c72;
+   color: white;
+   border: 1px solid #1e3c72;
+   border-radius: 6px;
+   font-size: 13px;
+   font-weight: 600;
+   text-decoration: none;
+   cursor: pointer;
+   transition: all 0.2s ease;
+}
+
+.btn-back-nav:hover {
+   background: #162a52;
+   border-color: #162a52;
+   color: white;
+   text-decoration: none;
+   transform: translateX(-2px);
+}
+
+.btn-back-nav i {
+   font-size: 12px;
+}
+
 /* Loading State */
 .dashboard-loading {
    min-height: 100vh;

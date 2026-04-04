@@ -136,6 +136,13 @@ export default function AdminDashboard() {
          {/* Main Content */}
          <main className="dashboard-main">
             <div className="dashboard-container">
+               {/* Back Button */}
+               <div className="dashboard-back-nav">
+                  <a href="https://app.bazmesaadaat.org/" className="btn btn-back-nav">
+                     <i className="fas fa-arrow-left"></i> Back
+                  </a>
+               </div>
+
                {/* Navigation Tabs */}
                <nav className="dashboard-tabs">
                   <button

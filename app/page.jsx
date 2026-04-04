@@ -1,11 +1,35 @@
 'use client';
 
+import { useState, useEffect } from 'react';
+
 export default function Home() {
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    // Check if user is logged in by checking localStorage
+    const adminData = localStorage.getItem('adminData');
+    setIsAdmin(!!adminData);
+    setLoading(false);
+  }, []);
+
   return (
     <div className="home-page">
       <div className="hero-section">
         <h1>Biographies & Books</h1>
         <p>Explore the life and teachings of Islamic saints and scholars</p>
+      </div>
+
+      <div className="footer-actions">
+        <a href="https://www.bazmesaadaat.org" className="btn btn-home-nav">
+          <i className="fas fa-arrow-left"></i> Home
+        </a>
+        {!loading && (
+          <a href={isAdmin ? '/admin/dashboard' : '/admin/login'} className="btn btn-admin-nav">
+            <i className={`fas ${isAdmin ? 'fa-tachometer-alt' : 'fa-sign-in-alt'}`}></i>
+            {isAdmin ? 'Dashboard' : 'Admin Login'}
+          </a>
+        )}
       </div>
 
       <div className="content-grid">
@@ -58,6 +82,52 @@ export default function Home() {
           grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
           gap: 24px;
           margin-bottom: 40px;
+        }
+
+        .footer-actions {
+          text-align: left;
+          padding: 8px 0;
+          margin: 10px 0 15px 0;
+        }
+
+        .footer-actions a {
+          font-size: 14px;
+          display: inline-block;
+          margin-right: 10px;
+        }
+
+        .footer-actions i {
+          margin-right: 8px;
+        }
+
+        .btn-home-nav {
+          background: #1e3c72;
+          color: white;
+          border: 1px solid #1e3c72;
+          padding: 8px 16px !important;
+          font-size: 13px !important;
+        }
+
+        .btn-home-nav:hover {
+          background: #162a52;
+          border-color: #162a52;
+          color: white;
+          text-decoration: none;
+        }
+
+        .btn-admin-nav {
+          background: #28a745;
+          color: white;
+          border: 1px solid #28a745;
+          padding: 8px 16px !important;
+          font-size: 13px !important;
+        }
+
+        .btn-admin-nav:hover {
+          background: #218838;
+          border-color: #218838;
+          color: white;
+          text-decoration: none;
         }
 
         .section-card {
@@ -116,6 +186,19 @@ export default function Home() {
 
         .btn-primary:disabled:hover {
           transform: none;
+        }
+
+        .btn-secondary {
+          background: rgba(255, 255, 255, 0.2);
+          color: white;
+          border: 1px solid rgba(255, 255, 255, 0.5);
+        }
+
+        .btn-secondary:hover {
+          background: rgba(255, 255, 255, 0.3);
+          color: white;
+          text-decoration: none;
+          transform: scale(1.02);
         }
 
         @media (max-width: 768px) {

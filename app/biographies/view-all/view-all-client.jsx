@@ -45,6 +45,14 @@ export default function ViewAllBiographiesClient() {
       window.location.href = '/';
    };
 
+   const handleGoReactHome = () => {
+      window.location.href = 'https://www.bazmesaadaat.org';
+   };
+
+   const handleGoBack = () => {
+      window.history.back();
+   };
+
    const handleViewBiography = (bio) => {
       const slug = (bio.english?.name || bio.urdu?.name || '')
          .toLowerCase()
@@ -61,17 +69,21 @@ export default function ViewAllBiographiesClient() {
                <h1>Biographies</h1>
                <p>Explore the genealogy and biographies of the famous sufi Saints.</p>
             </div>
-            <button className="btn-home" onClick={handleGoHome}>
-               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M19 12H5M12 19l-7-7 7-7" />
-               </svg>
-               <span>Back to Home</span>
-            </button>
          </header>
 
          {/* Main Content */}
          <main className="view-all-main">
             <div className="view-all-wrapper">
+               {/* Navigation Buttons */}
+               <div className="navigation-buttons">
+                  <button onClick={handleGoBack} className="btn btn-outline-secondary">
+                     <i className="fas fa-arrow-left"></i> Back
+                  </button>
+                  <button onClick={handleGoReactHome} className="btn btn-primary">
+                     <i className="fas fa-home"></i> Home
+                  </button>
+               </div>
+
                {/* Search Bar */}
                <div className="search-section">
                   <input
@@ -151,13 +163,6 @@ export default function ViewAllBiographiesClient() {
                )}
             </div>
          </main>
-
-         {/* Footer */}
-         <footer className="view-all-footer">
-            <button className="btn-home-footer" onClick={handleGoHome}>
-               ← Return to Home
-            </button>
-         </footer>
       </div>
    );
 }

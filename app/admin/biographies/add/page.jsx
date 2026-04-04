@@ -369,27 +369,18 @@ export default function AddBiography() {
 
             <div className="form-section">
                <h3>Add Custom Field</h3>
-               <div style={{ display: 'flex', gap: '12px', marginBottom: '16px' }}>
+               <div className="custom-field-input-group">
                   <input
                      type="text"
                      placeholder="Field name (e.g., Achievements)"
                      value={newFieldName}
                      onChange={(e) => setNewFieldName(e.target.value)}
-                     style={{
-                        padding: '10px',
-                        border: '1px solid #cbd5e0',
-                        borderRadius: '6px',
-                        flex: 1,
-                     }}
+                     className="custom-field-input"
                   />
                   <select
                      value={newFieldType}
                      onChange={(e) => setNewFieldType(e.target.value)}
-                     style={{
-                        padding: '10px',
-                        border: '1px solid #cbd5e0',
-                        borderRadius: '6px',
-                     }}
+                     className="custom-field-select"
                   >
                      <option value="text">Text</option>
                      <option value="textarea">Textarea</option>
@@ -398,23 +389,17 @@ export default function AddBiography() {
                   <button
                      type="button"
                      onClick={handleAddCustomField}
-                     className="btn btn-primary"
+                     className="btn btn-primary custom-field-btn"
                   >
                      <i className="fas fa-plus me-2"></i>Add Field
                   </button>
                </div>
                {customFields.length > 0 && (
-                  <div style={{ background: '#f7fafc', padding: '12px', borderRadius: '6px' }}>
-                     <h4 style={{ margin: '0 0 12px 0', fontSize: '14px' }}>Custom Fields ({customFields.length})</h4>
+                  <div className="custom-fields-container">
+                     <h4>Custom Fields ({customFields.length})</h4>
                      {customFields.map((field) => (
-                        <div key={field.key} style={{
-                           display: 'flex',
-                           justifyContent: 'space-between',
-                           alignItems: 'center',
-                           padding: '8px 0',
-                           borderBottom: '1px solid #e2e8f0',
-                        }}>
-                           <span>{field.label} ({field.type})</span>
+                        <div key={field.key} className="custom-field-row">
+                           <span className="custom-field-label">{field.label} ({field.type})</span>
                            <button
                               type="button"
                               onClick={() => handleRemoveCustomField(field.key)}
