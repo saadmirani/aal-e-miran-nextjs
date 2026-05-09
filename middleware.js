@@ -14,6 +14,16 @@ const authMiddleware = async (request) => {
       return NextResponse.next();
    }
 
+   // Khanqah GET requests are public (POST/PUT/DELETE auth-check in the route handlers)
+   if (pathname.startsWith('/api/khanqahs') && request.method === 'GET') {
+      return NextResponse.next();
+   }
+
+   // Global search is public
+   if (pathname.startsWith('/api/global-search')) {
+      return NextResponse.next();
+   }
+
    // Family tree admin endpoints (persons, families, etc.)
    if (pathname.startsWith('/api/admin/')) {
       return NextResponse.next();
