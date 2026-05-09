@@ -19,6 +19,52 @@
    padding-left: 16px;
 }
 
+/* Hamburger Toggle Button - Hidden on desktop, visible on mobile */
+.menu-toggle-btn {
+   display: none;
+   align-items: center;
+   justify-content: center;
+   width: 40px;
+   height: 40px;
+   background: transparent;
+   border: none;
+   cursor: pointer;
+   padding: 8px;
+   border-radius: 6px;
+   transition: background 0.2s ease;
+   color: white;
+}
+
+.menu-toggle-btn:hover {
+   background: rgba(255, 255, 255, 0.15);
+}
+
+.hamburger {
+   display: flex;
+   flex-direction: column;
+   gap: 5px;
+}
+
+.hamburger span {
+   width: 20px;
+   height: 2.5px;
+   background: white;
+   border-radius: 2px;
+   transition: all 0.3s ease;
+}
+
+.hamburger.open span:nth-child(1) {
+   transform: rotate(45deg) translate(8px, 8px);
+}
+
+.hamburger.open span:nth-child(2) {
+   opacity: 0;
+}
+
+.hamburger.open span:nth-child(3) {
+   transform: rotate(-45deg) translate(7px, -7px);
+}
+
 .navbar-brand {
    display: flex;
    align-items: center;
@@ -44,6 +90,10 @@
 @media (max-width: 768px) {
    .navbar {
       padding: 0 16px;
+   }
+
+   .menu-toggle-btn {
+      display: flex;
    }
 
    .navbar-title {

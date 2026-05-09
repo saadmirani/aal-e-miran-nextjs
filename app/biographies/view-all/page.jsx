@@ -43,22 +43,6 @@ export default function ViewAllBiographies() {
       return englishName.includes(search) || urduName.includes(search);
    });
 
-   const handleGoHome = () => {
-      window.location.href = '/';
-   };
-
-   const handleGoReactHome = () => {
-      window.location.href = 'https://www.bazmesaadaat.org';
-   };
-
-   const handleGoBack = () => {
-      window.history.back();
-   };
-
-   const handleGoToDashboard = () => {
-      window.location.href = '/admin/dashboard';
-   };
-
    const handleViewBiography = (bio) => {
       const slug = (bio.english?.name || bio.urdu?.name || '')
          .toLowerCase()
@@ -80,19 +64,6 @@ export default function ViewAllBiographies() {
          {/* Main Content */}
          <main className="view-all-main">
             <div className="view-all-wrapper">
-               {/* Navigation Buttons */}
-               <div className="navigation-buttons">
-                  <button onClick={handleGoBack} className="btn btn-outline-secondary">
-                     <i className="fas fa-arrow-left"></i> Back
-                  </button>
-                  <button onClick={handleGoReactHome} className="btn btn-primary">
-                     <i className="fas fa-home"></i> Home
-                  </button>
-                  <button onClick={handleGoToDashboard} className="btn btn-success">
-                     <i className="fas fa-tachometer-alt"></i> Dashboard
-                  </button>
-               </div>
-
                {/* Search Bar */}
                <div className="search-section">
                   <input

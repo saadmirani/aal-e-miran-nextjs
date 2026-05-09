@@ -42,10 +42,6 @@ export default function ViewBiography() {
       }
    };
 
-   const handleGoHome = () => {
-      window.location.href = 'https://www.bazmesaadaat.org';
-   };
-
    const handleGoBack = () => {
       window.history.back();
    };
@@ -70,9 +66,6 @@ export default function ViewBiography() {
                <div className="button-group">
                   <button className="btn-back" onClick={handleGoBack}>
                      ← Back to List
-                  </button>
-                  <button className="btn-home" onClick={handleGoHome}>
-                     ← Home
                   </button>
                </div>
             </div>
@@ -117,9 +110,6 @@ export default function ViewBiography() {
                   <div className="navigation-buttons">
                      <button onClick={handleGoBack} className="btn btn-outline-secondary">
                         <i className="fas fa-arrow-left"></i> Back
-                     </button>
-                     <button onClick={handleGoHome} className="btn btn-primary">
-                        <i className="fas fa-home"></i> Home
                      </button>
                   </div>
 

@@ -1,7 +1,10 @@
 import React from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import Navbar from '@/components/Navbar';
+import SideMenu from '@/components/SideMenu';
 import { LanguageProvider } from '@/context/LanguageContext';
+import { AuthProvider } from '@/context/AuthContext';
+import { MenuProvider } from '@/context/MenuContext';
 import './layout.css';
 
 export const metadata = {
@@ -25,14 +28,21 @@ export default function RootLayout({ children }) {
             />
          </head>
          <body>
-            <LanguageProvider>
-               <div className="layout">
-                  <Navbar />
-                  <main className="content">
-                     {children}
-                  </main>
-               </div>
-            </LanguageProvider>
+            <AuthProvider>
+               <MenuProvider>
+                  <LanguageProvider>
+                     <div className="layout">
+                        <Navbar />
+                        <div className="main-wrapper">
+                           <SideMenu />
+                           <main className="content">
+                              {children}
+                           </main>
+                        </div>
+                     </div>
+                  </LanguageProvider>
+               </MenuProvider>
+            </AuthProvider>
          </body>
       </html>
    );

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import './modal.css';
 
 export default function ContributorsModal({ isOpen, onClose, onContributorsUpdate }) {
    const [view, setView] = useState('list');
@@ -128,8 +129,8 @@ export default function ContributorsModal({ isOpen, onClose, onContributorsUpdat
    if (!isOpen) return null;
 
    return (
-      <div className="modal d-block" style={{ backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center' }} role="dialog">
-         <div className="modal-dialog modal-lg" style={{ maxWidth: '900px', alignSelf: 'center' }}>
+      <div className="modal d-block" tabIndex="-1" role="dialog">
+         <div className="modal-dialog modal-lg">
             <div className="modal-content">
                <div className="modal-header border-0" style={{ background: '#1e3a5f' }}>
                   <h5 className="modal-title text-white">

@@ -4,10 +4,12 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '@/lib/firebaseClient';
+import { useAuth } from '@/context/AuthContext';
 import './login.css';
 
 export default function AdminLogin() {
    const router = useRouter();
+   const { login } = useAuth();
    const [email, setEmail] = useState('');
    const [password, setPassword] = useState('');
    const [error, setError] = useState('');
@@ -57,13 +59,19 @@ export default function AdminLogin() {
          // Get admin data from response
          const data = await response.json();
 
-         // Store admin data in localStorage
-         localStorage.setItem('adminData', JSON.stringify({
+         // Store admin data object
+         const adminData = {
             name: data.name,
             email: data.email,
             role: data.role,
             uid: data.uid
-         }));
+         };
+
+         // Store in localStorage
+         localStorage.setItem('adminData', JSON.stringify(adminData));
+
+         // Update AuthContext immediately
+         login(adminData);
 
          // Redirect to dashboard
          router.push('/admin/dashboard');

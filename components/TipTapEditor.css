@@ -59,6 +59,18 @@
    border-color: #5a67d8;
 }
 
+/* Ensure inline elements inside toolbar buttons always inherit button color */
+.toolbar-btn strong,
+.toolbar-btn em,
+.toolbar-btn u,
+.toolbar-btn s,
+.toolbar-btn span {
+   color: inherit;
+   font-weight: inherit;
+   font-style: inherit;
+   text-decoration: inherit;
+}
+
 .toolbar-btn:disabled {
    opacity: 0.4;
    cursor: not-allowed;

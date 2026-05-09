@@ -158,47 +158,23 @@
 }
 
 .dashboard-container {
-   max-width: 1200px;
-   margin: 0 auto;
+   max-width: 100%;
+   margin: 0;
    display: flex;
    flex-direction: column;
    gap: 24px;
 }
 
-/* Back Navigation */
-.dashboard-back-nav {
+/* Two-column body: content left, status right */
+.dashboard-body {
    display: flex;
-   gap: 12px;
-   padding: 0 0 12px 0;
-   border-bottom: 1px solid #e2e8f0;
+   gap: 24px;
+   align-items: flex-start;
 }
 
-.btn-back-nav {
-   display: inline-flex;
-   align-items: center;
-   gap: 6px;
-   padding: 8px 16px;
-   background: #1e3c72;
-   color: white;
-   border: 1px solid #1e3c72;
-   border-radius: 6px;
-   font-size: 13px;
-   font-weight: 600;
-   text-decoration: none;
-   cursor: pointer;
-   transition: all 0.2s ease;
-}
-
-.btn-back-nav:hover {
-   background: #162a52;
-   border-color: #162a52;
-   color: white;
-   text-decoration: none;
-   transform: translateX(-2px);
-}
-
-.btn-back-nav i {
-   font-size: 12px;
+.dashboard-content {
+   flex: 1;
+   min-width: 0;
 }
 
 /* Loading State */
@@ -404,11 +380,12 @@
 
 .system-status {
    background: white;
-   padding: 28px;
+   padding: 24px;
    border-radius: 12px;
    border: 1px solid #e2e8f0;
    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-   margin-top: 24px;
+   width: 260px;
+   flex-shrink: 0;
 }
 
 .system-status h3 {
@@ -419,9 +396,9 @@
 }
 
 .status-items {
-   display: grid;
-   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-   gap: 16px;
+   display: flex;
+   flex-direction: column;
+   gap: 12px;
 }
 
 .status-item {
@@ -492,6 +469,14 @@
 
    .dashboard-main {
       padding: 16px;
+   }
+
+   .dashboard-body {
+      flex-direction: column;
+   }
+
+   .system-status {
+      width: 100%;
    }
 
    .action-grid {

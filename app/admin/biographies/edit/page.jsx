@@ -2,498 +2,322 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { useAuth } from '@/context/AuthContext';
 import TipTapEditor from '@/components/TipTapEditor';
+import '../add/add.css';
 import './edit.css';
 
-const PREDEFINED_FIELDS = [
-   { key: 'name', label: 'Name', type: 'text', required: true },
-   { key: 'father', label: 'Father', type: 'text' },
-   { key: 'mother', label: 'Mother', type: 'text' },
-   { key: 'born', label: 'Born', type: 'text' },
-   { key: 'died', label: 'Died', type: 'text' },
-   { key: 'birthPlace', label: 'Birth Place', type: 'text' },
-   { key: 'buriedPlace', label: 'Buried Place', type: 'text' },
-   { key: 'nasbaNama', label: 'Nasab Nama', type: 'textarea' },
-   { key: 'about', label: 'About', type: 'rich-text', required: true },
+const FIELDS = [
+   { key: 'name',        label: 'Name',          type: 'text',      required: true, layout: 'bilingual' },
+   { key: 'father',      label: 'Father Name',   type: 'text',                      layout: 'bilingual' },
+   { key: 'mother',      label: 'Mother Name',   type: 'text',                      layout: 'bilingual' },
+   { key: 'birthPlace',  label: 'Birth Place',   type: 'text',                      layout: 'bilingual' },
+   { key: 'buriedPlace', label: 'Buried Place',  type: 'text',                      layout: 'bilingual' },
+   { key: 'born',        label: 'Date of Birth', type: 'text',                      layout: 'shared'    },
+   { key: 'died',        label: 'Date of Death', type: 'text',                      layout: 'shared'    },
+   { key: 'nasbaNama',   label: 'Nasab Nama',    type: 'textarea',                  layout: 'bilingual', placeholder: 'Paternal lineage...' },
+   { key: 'about',       label: 'About',         type: 'rich-text', required: true, layout: 'about'     },
 ];
 
-export default function EditBiography() {
-   const router = useRouter();
-   const [biographies, setBiographies] = useState([]);
-   const [selectedId, setSelectedId] = useState(null);
-   const [selectedBio, setSelectedBio] = useState(null);
-   const [language, setLanguage] = useState('urdu');
-   const [formData, setFormData] = useState({
-      urdu: {},
-      english: {},
-   });
-   const [customFields, setCustomFields] = useState([]);
-   const [newFieldName, setNewFieldName] = useState('');
-   const [newFieldType, setNewFieldType] = useState('text');
-   const [errors, setErrors] = useState({});
-   const [loading, setLoading] = useState(false);
-   const [bioLoading, setBioLoading] = useState(false);
-   const [searchTerm, setSearchTerm] = useState('');
+const SHARED_KEYS = new Set(['born', 'died']);
+const emptyLang  = () => FIELDS.reduce((acc, f) => { acc[f.key] = ''; return acc; }, {});
+const emptyForm  = () => ({ urdu: emptyLang(), english: emptyLang() });
 
-   // Fetch biographies list
+export default function EditBiography() {
+   const router  = useRouter();
+   const { isAdmin, loading: authLoading } = useAuth();
+
+   const [biographies, setBiographies] = useState([]);
+   const [bioLoading,  setBioLoading]  = useState(false);
+   const [selectedId,  setSelectedId]  = useState(null);
+   const [searchTerm,  setSearchTerm]  = useState('');
+   const [formData,    setFormData]    = useState(emptyForm());
+   const [errors,      setErrors]      = useState({});
+   const [loading,     setLoading]     = useState(false);
+   const [translating, setTranslating] = useState({});
+
    useEffect(() => {
+      if (authLoading) return;
+      if (!isAdmin) { router.push('/admin/login'); return; }
       fetchBiographies();
-   }, []);
+   }, [isAdmin, authLoading, router]);
 
    const fetchBiographies = async () => {
+      setBioLoading(true);
       try {
-         setBioLoading(true);
-         const response = await fetch('/api/biographies/list');
-
-         if (!response.ok) {
-            const error = await response.json();
-            if (error.code === 'auth/id-token-expired') {
-               router.push('/admin/login');
-               return;
-            }
-            throw new Error(error.error || 'Failed to fetch biographies');
-         }
-
-         const data = await response.json();
+         const res = await fetch('/api/biographies/list');
+         if (!res.ok) throw new Error('Failed to fetch');
+         const data = await res.json();
          setBiographies(data.biographies || []);
-      } catch (err) {
-         alert(err.message || 'Error fetching biographies');
-      } finally {
-         setBioLoading(false);
-      }
+      } catch { /* silent */ }
+      setBioLoading(false);
    };
 
-   // Load selected biography
    const loadBiography = async (id) => {
+      setBioLoading(true);
+      setSelectedId(id);
+      setErrors({});
       try {
-         setBioLoading(true);
-         setSelectedId(id);
-
-         const response = await fetch(`/api/biographies/${id}`);
-
-         if (!response.ok) {
-            const error = await response.json();
-            if (error.code === 'auth/id-token-expired') {
-               router.push('/admin/login');
-               return;
-            }
-            throw new Error(error.error || 'Failed to load biography');
+         const res = await fetch(`/api/biographies/${id}`);
+         if (!res.ok) {
+            const err = await res.json();
+            if (err.code === 'auth/id-token-expired') { router.push('/admin/login'); return; }
+            throw new Error(err.error || 'Failed to load');
          }
-
-         const bio = await response.json();
-         setSelectedBio(bio);
+         const bio = await res.json();
          setFormData({
-            urdu: bio.urdu || {},
-            english: bio.english || {},
+            english: { ...emptyLang(), ...(bio.english || {}) },
+            urdu:    { ...emptyLang(), ...(bio.urdu    || {}) },
          });
-         setCustomFields([]);
-         setErrors({});
-      } catch (err) {
-         alert(err.message || 'Error loading biography');
-      } finally {
-         setBioLoading(false);
-      }
+      } catch (e) { alert(e.message || 'Error loading biography'); }
+      setBioLoading(false);
    };
 
-   // Handle field change
+   const HONORIFICS = [
+      { pattern: /S\.A\.W\.?/gi, urdu: '\uFDFA' },
+      { pattern: /R\.Z\.?/gi,     urdu: '\u0613'  },
+      { pattern: /R\.H\.?/gi,     urdu: '\u0612'  },
+   ];
+
+   const extractHonorific = (text) => {
+      const trimmed = text.trim();
+      for (const h of HONORIFICS) {
+         const m = trimmed.match(new RegExp(`^(.+?)\\s+(${h.pattern.source})\\s*$`, 'i'));
+         if (m && m[1].trim()) return { clean: m[1].trim(), honorificUrdu: h.urdu };
+      }
+      return { clean: trimmed, honorificUrdu: '' };
+   };
+
+   const callTranslate = async (text) => {
+      if (!text.trim()) return text;
+      const { clean, honorificUrdu } = extractHonorific(text.trim());
+      const res = await fetch('/api/translate', {
+         method: 'POST',
+         headers: { 'Content-Type': 'application/json' },
+         body: JSON.stringify({ text: clean, sourceLang: 'en', targetLang: 'ur' }),
+      });
+      if (!res.ok) return text;
+      const data = await res.json();
+      if (!data.translatedText) return text;
+      return data.translatedText.trimEnd() + honorificUrdu;
+   };
+
+   const translateField = async (fieldKey) => {
+      const text = formData.english[fieldKey];
+      if (!text?.trim()) return;
+      setTranslating(prev => ({ ...prev, [fieldKey]: true }));
+      try {
+         let translated;
+         if (fieldKey === 'nasbaNama') {
+            const parts = text.split(' \u2190 ');
+            const translatedParts = await Promise.all(parts.map(p => callTranslate(p.trim())));
+            translated = translatedParts.join(' \u0628\u0646 ');
+         } else {
+            translated = await callTranslate(text);
+         }
+         setFormData(prev => ({ ...prev, urdu: { ...prev.urdu, [fieldKey]: translated } }));
+      } catch { /* silent */ }
+      setTranslating(prev => ({ ...prev, [fieldKey]: false }));
+   };
+
    const handleFieldChange = (lang, fieldKey, value) => {
-      if (fieldKey === 'born' || fieldKey === 'died') {
-         setFormData((prev) => ({
+      if (SHARED_KEYS.has(fieldKey)) {
+         setFormData(prev => ({
             ...prev,
-            urdu: { ...prev.urdu, [fieldKey]: value },
+            urdu:    { ...prev.urdu,    [fieldKey]: value },
             english: { ...prev.english, [fieldKey]: value },
          }));
       } else {
-         setFormData((prev) => ({
-            ...prev,
-            [lang]: { ...prev[lang], [fieldKey]: value },
-         }));
+         setFormData(prev => ({ ...prev, [lang]: { ...prev[lang], [fieldKey]: value } }));
       }
-
-      if (errors[fieldKey]) {
-         setErrors((prev) => {
-            const newErrors = { ...prev };
-            delete newErrors[fieldKey];
-            return newErrors;
-         });
-      }
+      const errKey = `${lang}_${fieldKey}`;
+      if (errors[errKey]) setErrors(prev => { const e = { ...prev }; delete e[errKey]; return e; });
    };
 
-   // Add custom field
-   const handleAddCustomField = () => {
-      if (!newFieldName.trim()) {
-         alert('Please enter a field name');
-         return;
-      }
-      const newField = {
-         key: newFieldName.toLowerCase().replace(/\s+/g, '_'),
-         label: newFieldName,
-         type: newFieldType,
-         custom: true,
-      };
-      setCustomFields([...customFields, newField]);
-      setFormData((prev) => ({
-         ...prev,
-         urdu: { ...prev.urdu, [newField.key]: '' },
-         english: { ...prev.english, [newField.key]: '' },
-      }));
-      setNewFieldName('');
-      setNewFieldType('text');
-   };
-
-   // Remove custom field
-   const handleRemoveCustomField = (fieldKey) => {
-      setCustomFields(customFields.filter(f => f.key !== fieldKey));
-      setFormData((prev) => ({
-         urdu: Object.fromEntries(Object.entries(prev.urdu).filter(([k]) => k !== fieldKey)),
-         english: Object.fromEntries(Object.entries(prev.english).filter(([k]) => k !== fieldKey)),
-      }));
-   };
-
-   // Validate form
    const validateForm = () => {
-      const newErrors = {};
-
-      if (!formData.urdu.name?.trim()) {
-         newErrors.urdu_name = 'Urdu Name is required';
-      }
-      if (!formData.english.name?.trim()) {
-         newErrors.english_name = 'English Name is required';
-      }
-
-      if (!formData.urdu.about?.trim()) {
-         newErrors.urdu_about = 'Urdu About is required';
-      }
-      if (!formData.english.about?.trim()) {
-         newErrors.english_about = 'English About is required';
-      }
-
-      setErrors(newErrors);
-      return Object.keys(newErrors).length === 0;
+      const errs = {};
+      if (!formData.english.name?.trim()) errs.english_name = 'English name is required';
+      if (!formData.urdu.name?.trim())    errs.urdu_name    = 'Urdu name is required';
+      const engAbout  = (formData.english.about || '').replace(/<[^>]*>/g, '').trim();
+      if (!engAbout  || engAbout.split(/\s+/).filter(w => w).length  < 3) errs.english_about = 'English About must be at least 3 words';
+      const urduAbout = (formData.urdu.about    || '').replace(/<[^>]*>/g, '').trim();
+      if (!urduAbout || urduAbout.split(/\s+/).filter(w => w).length < 3) errs.urdu_about    = 'Urdu About must be at least 3 words';
+      setErrors(errs);
+      return errs;
    };
 
-   // Submit (save changes)
+   const scrollToFirstError = (errs) => {
+      const ID_MAP   = { english_name: 'fg-en-name', urdu_name: 'fg-ur-name', english_about: 'fg-en-about', urdu_about: 'fg-ur-about' };
+      const ORDER    = ['english_name', 'urdu_name', 'english_about', 'urdu_about'];
+      const firstKey = ORDER.find(k => errs[k]);
+      if (!firstKey) return;
+      document.getElementById(ID_MAP[firstKey])?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+   };
+
+   const buildLangPayload = (lang) => {
+      const result = {};
+      FIELDS.forEach(f => {
+         const v = formData[lang][f.key];
+         if (typeof v === 'string' && v.trim()) result[f.key] = v.trim();
+         else if (v && typeof v !== 'string')   result[f.key] = v;
+      });
+      return result;
+   };
+
    const handleSubmit = async (e) => {
-      e.preventDefault();
-
-      if (!validateForm() || !selectedId) return;
-
+      e?.preventDefault();
+      if (!selectedId) return;
+      const errs = validateForm();
+      if (Object.keys(errs).length > 0) { scrollToFirstError(errs); return; }
       setLoading(true);
-
       try {
-         const response = await fetch(`/api/biographies/${selectedId}`, {
+         const res = await fetch(`/api/biographies/${selectedId}`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-               urdu: Object.fromEntries(
-                  Object.entries(formData.urdu).filter(([, v]) => v !== null && v !== undefined)
-               ),
-               english: Object.fromEntries(
-                  Object.entries(formData.english).filter(([, v]) => v !== null && v !== undefined)
-               ),
-            }),
+            body: JSON.stringify({ urdu: buildLangPayload('urdu'), english: buildLangPayload('english') }),
          });
-
-         if (!response.ok) {
-            const error = await response.json();
-
-            if (error.code === 'auth/id-token-expired') {
-               alert('Your session has expired. Please login again.');
-               router.push('/admin/login');
-               return;
-            }
-
-            throw new Error(error.error || 'Failed to save biography');
+         if (!res.ok) {
+            const err = await res.json();
+            if (err.code === 'auth/id-token-expired') { alert('Session expired.'); router.push('/admin/login'); return; }
+            throw new Error(err.error || 'Failed to save');
          }
-
          alert('Biography updated successfully!');
          router.push('/admin/dashboard');
-      } catch (err) {
-         alert(err.message || 'Error saving biography');
-      } finally {
-         setLoading(false);
-      }
+      } catch (e) { alert(e.message || 'Error saving biography'); }
+      finally { setLoading(false); }
    };
 
-   // Render field
-   const renderField = (field, lang) => {
-      const value = formData[lang]?.[field.key] || '';
-      let errorKey = null;
-
-      if (field.key === 'name') {
-         errorKey = lang === 'urdu' ? 'urdu_name' : 'english_name';
-      } else if (field.key === 'about') {
-         errorKey = lang === 'urdu' ? 'urdu_about' : 'english_about';
-      }
-
-      return (
-         <div key={field.key} className="form-group">
-            <label htmlFor={`${lang}-${field.key}`}>
-               {field.label}
-               {field.required && <span className="required">*</span>}
-            </label>
-
-            {field.type === 'text' && (
-               <input
-                  id={`${lang}-${field.key}`}
-                  type="text"
-                  placeholder={`Enter ${field.label.toLowerCase()}`}
-                  value={value}
-                  onChange={(e) => handleFieldChange(lang, field.key, e.target.value)}
-                  className={errorKey && errors[errorKey] ? 'input-error' : ''}
-                  dir={lang === 'urdu' ? 'rtl' : 'ltr'}
-               />
-            )}
-
-            {field.type === 'textarea' && (
-               <textarea
-                  id={`${lang}-${field.key}`}
-                  placeholder={`Enter ${field.label.toLowerCase()}`}
-                  value={value}
-                  onChange={(e) => handleFieldChange(lang, field.key, e.target.value)}
-                  rows={4}
-                  dir={lang === 'urdu' ? 'rtl' : 'ltr'}
-                  className={errorKey && errors[errorKey] ? 'input-error' : ''}
-               />
-            )}
-
-            {field.type === 'rich-text' && (
-               <div className="rich-text-group">
-                  <TipTapEditor
-                     value={value}
-                     onChange={(html) => handleFieldChange(lang, field.key, html)}
-                     isRTL={lang === 'urdu'}
-                  />
-               </div>
-            )}
-
-            {errorKey && errors[errorKey] && (
-               <span className="error-text">{errors[errorKey]}</span>
-            )}
-         </div>
-      );
-   };
-
-   if (!selectedBio) {
-      return (
-         <div className="edit-biography-layout">
-            {/* Left Sidebar */}
-            <div className="biographies-sidebar">
-               <div className="sidebar-header">
-                  <h2><i className="fas fa-book me-2"></i>Biographies</h2>
-                  <input
-                     type="text"
-                     placeholder="Search..."
-                     value={searchTerm}
-                     onChange={(e) => setSearchTerm(e.target.value)}
-                     className="search-input"
-                  />
-               </div>
-
-               {bioLoading ? (
-                  <div className="loading">Loading biographies...</div>
-               ) : biographies.length === 0 ? (
-                  <div className="no-biographies">No biographies found</div>
-               ) : (
-                  <div className="biographies-list">
-                     {biographies
-                        .filter(bio =>
-                           bio.urdu?.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                           bio.english?.name?.toLowerCase().includes(searchTerm.toLowerCase())
-                        )
-                        .map((bio) => (
-                           <button
-                              key={bio.id}
-                              className="bio-item"
-                              onClick={() => loadBiography(bio.id)}
-                           >
-                              <div className="bio-item-name">
-                                 {bio.english?.name || bio.urdu?.name || 'Unnamed'}
-                              </div>
-                              <div className="bio-item-subtitle">
-                                 {bio.english?.father ? `Son of ${bio.english.father}` : bio.urdu?.father ? `Son of ${bio.urdu.father}` : ''}
-                              </div>
-                           </button>
-                        ))}
-                  </div>
-               )}
-            </div>
-
-            {/* Empty State */}
-            <div className="empty-state">
-               <p>Select a biography to edit</p>
-            </div>
-         </div>
-      );
+   if (authLoading || !isAdmin) {
+      return <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', color: '#666' }}>Loading...</div>;
    }
+
+   const filteredBios = biographies.filter(bio =>
+      (bio.english?.name || bio.urdu?.name || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (bio.english?.father || '').toLowerCase().includes(searchTerm.toLowerCase())
+   );
 
    return (
       <div className="edit-biography-layout">
-         {/* Left Sidebar */}
          <div className="biographies-sidebar">
             <div className="sidebar-header">
-               <h2><i className="fas fa-scroll"></i> Biographies</h2>
-               <input
-                  type="text"
-                  placeholder="Search..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="search-input"
-               />
+               <h2><i className="fas fa-book me-2"></i>Biographies</h2>
+               <input type="text" placeholder="Search..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="search-input" />
             </div>
-
-            {bioLoading ? (
+            {bioLoading && !selectedId ? (
                <div className="loading">Loading...</div>
+            ) : filteredBios.length === 0 ? (
+               <div className="no-biographies">No biographies found</div>
             ) : (
                <div className="biographies-list">
-                  {biographies
-                     .filter(bio =>
-                        bio.urdu?.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                        bio.english?.name?.toLowerCase().includes(searchTerm.toLowerCase())
-                     )
-                     .map((bio) => (
-                        <button
-                           key={bio.id}
-                           className={`bio-item ${bio.id === selectedId ? 'active' : ''}`}
-                           onClick={() => loadBiography(bio.id)}
-                        >
-                           <div className="bio-item-name">
-                              {bio.english?.name || bio.urdu?.name || 'Unnamed'}
-                           </div>
-                           <div className="bio-item-subtitle">
-                              {bio.english?.father ? `Son of ${bio.english.father}` : bio.urdu?.father ? `Son of ${bio.urdu.father}` : ''}
-                           </div>
-                        </button>
-                     ))}
+                  {filteredBios.map(bio => (
+                     <button key={bio.id} className={`bio-item${bio.id === selectedId ? ' active' : ''}`} onClick={() => loadBiography(bio.id)}>
+                        <div className="bio-item-name">{bio.english?.name || bio.urdu?.name || 'Unnamed'}</div>
+                        <div className="bio-item-subtitle">
+                           {bio.english?.father ? `S/O ${bio.english.father}` : bio.urdu?.father ? `\u0628\u0646 ${bio.urdu.father}` : ''}
+                        </div>
+                     </button>
+                  ))}
                </div>
             )}
          </div>
 
-         {/* Main Content */}
-         <div className="edit-biography-container">
-            <div className="page-header">
-               <h1><i className="fas fa-pen-to-square me-2"></i>Edit Biography</h1>
-               <p style={{ fontSize: '28px', fontWeight: '700', color: '#062e7e', margin: '20px 0 0 0' }}>{selectedBio?.english?.name || selectedBio?.urdu?.name}</p>
-            </div>
-
-            <form className="biography-form" onSubmit={handleSubmit}>
-               {/* Language Tabs */}
-               <div className="form-section">
-                  <div className="language-tabs">
-                     <button
-                        type="button"
-                        className={`lang-tab ${language === 'urdu' ? 'active' : ''}`}
-                        onClick={() => setLanguage('urdu')}
-                     >
-                        Urdu
+         {!selectedId ? (
+            <div className="empty-state"><p>Select a biography from the sidebar to edit</p></div>
+         ) : (
+            <div className="edit-biography-container">
+               <div className="page-header">
+                  <div>
+                     <h1><i className="fas fa-pen-to-square me-2"></i>Edit Biography</h1>
+                     <p>Edit English and Urdu versions side by side. Use \u21ba to auto-translate a field.</p>
+                  </div>
+                  <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+                     <button type="button" className="btn btn-secondary" onClick={() => router.push('/admin/dashboard')}>
+                        <i className="fas fa-arrow-left me-2"></i>Back
                      </button>
-                     <button
-                        type="button"
-                        className={`lang-tab ${language === 'english' ? 'active' : ''}`}
-                        onClick={() => setLanguage('english')}
-                     >
-                        English
+                     <button type="submit" form="edit-bio-form" className="btn btn-success" disabled={loading || bioLoading}>
+                        <i className="fas fa-save me-2"></i>{loading ? 'Saving\u2026' : 'Save Changes'}
                      </button>
                   </div>
-                  <p className="lang-note">
-                     {language === 'urdu'
-                        ? 'Edit Urdu biography details. Only Born/Died will sync to English.'
-                        : 'Edit English biography details independently.'}
+               </div>
+
+               {bioLoading && (
+                  <p style={{ color: '#667eea', fontSize: 14, marginBottom: 16 }}>
+                     <i className="fas fa-spinner fa-spin me-2"></i>Loading biography\u2026
                   </p>
-               </div>
+               )}
 
-               {/* Form Fields */}
-               <div className="form-section">
-                  {PREDEFINED_FIELDS.map((field) => renderField(field, language))}
-                  {customFields.map((field) => renderField(field, language))}
-               </div>
-
-               {/* Custom Fields Section */}
-               <div className="form-section">
-                  <h3>Add Custom Field</h3>
-                  <div style={{ display: 'flex', gap: '12px', marginBottom: '16px' }}>
-                     <input
-                        type="text"
-                        placeholder="Field name"
-                        value={newFieldName}
-                        onChange={(e) => setNewFieldName(e.target.value)}
-                        style={{
-                           padding: '10px',
-                           border: '1px solid #cbd5e0',
-                           borderRadius: '6px',
-                           flex: 1,
-                        }}
-                     />
-                     <select
-                        value={newFieldType}
-                        onChange={(e) => setNewFieldType(e.target.value)}
-                        style={{
-                           padding: '10px',
-                           border: '1px solid #cbd5e0',
-                           borderRadius: '6px',
-                        }}
-                     >
-                        <option value="text">Text</option>
-                        <option value="textarea">Textarea</option>
-                        <option value="rich-text">Rich Text</option>
-                     </select>
-                     <button
-                        type="button"
-                        onClick={handleAddCustomField}
-                        className="btn btn-dark"
-                     >
-                        <i className="fas fa-plus me-2"></i>Add
-                     </button>
-                  </div>
-
-                  {customFields.length > 0 && (
-                     <div style={{ background: '#f7fafc', padding: '12px', borderRadius: '6px' }}>
-                        <h4 style={{ margin: '0 0 12px 0' }}>Custom Fields</h4>
-                        {customFields.map((field) => (
-                           <div
-                              key={field.key}
-                              style={{
-                                 display: 'flex',
-                                 justifyContent: 'space-between',
-                                 alignItems: 'center',
-                                 padding: '8px 0',
-                                 borderBottom: '1px solid #e2e8f0',
-                              }}
-                           >
-                              <span>{field.label}</span>
-                              <button
-                                 type="button"
-                                 onClick={() => handleRemoveCustomField(field.key)}
-                                 className="btn btn-danger btn-sm"
-                              >
-                                 <i className="fas fa-trash-alt me-1"></i>Remove
-                              </button>
-                           </div>
-                        ))}
+               <form id="edit-bio-form" className="biography-form" onSubmit={handleSubmit}>
+                  <div className="bio-form-grid">
+                     <div className="bio-grid-header-row">
+                        <div className="bio-grid-label-cell" />
+                        <div className="bio-grid-header-cell bio-hdr-en">English</div>
+                        <div className="bio-grid-header-cell bio-hdr-ur">\u0627\u0631\u062f\u0648 &nbsp;<span className="hdr-ai-note">\u21ba = AI translate</span></div>
                      </div>
-                  )}
-               </div>
 
-               {/* Action Buttons */}
-               <div className="form-actions">
-                  <button
-                     type="button"
-                     className="btn btn-danger"
-                     onClick={() => router.push('/admin/dashboard')}
-                  >
-                     <i className="fas fa-times me-2"></i>Cancel
-                  </button>
+                     {FIELDS.filter(f => f.layout === 'bilingual').map(field => {
+                        const enKey = `english_${field.key}`;
+                        const urKey = `urdu_${field.key}`;
+                        const isTextarea = field.type === 'textarea';
+                        return (
+                           <div key={field.key} className={`bio-grid-row${isTextarea ? ' bio-row-about' : ''}`}>
+                              <div className="bio-grid-label">{field.label}{field.required && <span className="required"> *</span>}</div>
+                              <div id={`fg-en-${field.key}`} className="bio-cell bio-cell-en">
+                                 {isTextarea ? (
+                                    <textarea value={formData.english[field.key] || ''} onChange={e => handleFieldChange('english', field.key, e.target.value)} className={errors[enKey] ? 'input-error' : ''} placeholder={field.placeholder || 'English'} rows={3} />
+                                 ) : (
+                                    <input type="text" value={formData.english[field.key] || ''} onChange={e => handleFieldChange('english', field.key, e.target.value)} className={errors[enKey] ? 'input-error' : ''} placeholder="English" />
+                                 )}
+                                 {errors[enKey] && <span className="error-text">{errors[enKey]}</span>}
+                              </div>
+                              <div id={`fg-ur-${field.key}`} className="bio-cell bio-cell-ur">
+                                 <div className="urdu-field-wrapper">
+                                    {isTextarea ? (
+                                       <textarea dir="rtl" value={formData.urdu[field.key] || ''} onChange={e => handleFieldChange('urdu', field.key, e.target.value)} className={`urdu-input${errors[urKey] ? ' input-error' : ''}`} placeholder="\u0627\u0631\u062f\u0648" rows={3} />
+                                    ) : (
+                                       <input type="text" dir="rtl" value={formData.urdu[field.key] || ''} onChange={e => handleFieldChange('urdu', field.key, e.target.value)} className={`urdu-input${errors[urKey] ? ' input-error' : ''}`} placeholder="\u0627\u0631\u062f\u0648" />
+                                    )}
+                                    <button type="button" className="translate-btn" title="Auto-translate from English to Urdu" onClick={() => translateField(field.key)} disabled={translating[field.key] || !formData.english[field.key]?.trim()}>
+                                       {translating[field.key] ? '\u23f3' : '\u21ba'}
+                                    </button>
+                                 </div>
+                                 {errors[urKey] && <span className="error-text">{errors[urKey]}</span>}
+                              </div>
+                           </div>
+                        );
+                     })}
 
-                  <button
-                     type="submit"
-                     className="btn btn-success"
-                     disabled={loading}
-                  >
-                     <i className="fas fa-save me-2"></i>{loading ? 'Saving...' : 'Save'}
-                  </button>
-               </div>
-            </form>
-         </div>
+                     {FIELDS.filter(f => f.layout === 'shared').map(field => (
+                        <div key={field.key} className="bio-grid-row">
+                           <div className="bio-grid-label">{field.label}</div>
+                           <div className="bio-cell bio-cell-span">
+                              <input type="text" value={formData.english[field.key] || ''} onChange={e => handleFieldChange('english', field.key, e.target.value)} placeholder="" />
+                           </div>
+                        </div>
+                     ))}
+
+                     <div id="fg-en-about" className="bio-grid-row bio-row-about">
+                        <div className="bio-grid-label">About \u2013 English<span className="required"> *</span></div>
+                        <div className="bio-cell bio-cell-span">
+                           <div className={`rich-text-group${errors.english_about ? ' input-error' : ''}`}>
+                              <TipTapEditor value={formData.english.about || ''} onChange={html => handleFieldChange('english', 'about', html)} isRTL={false} />
+                           </div>
+                           {errors.english_about && <span className="error-text">{errors.english_about}</span>}
+                        </div>
+                     </div>
+
+                     <div id="fg-ur-about" className="bio-grid-row bio-row-about">
+                        <div className="bio-grid-label">About \u2013 \u0627\u0631\u062f\u0648<span className="required"> *</span></div>
+                        <div className="bio-cell bio-cell-span">
+                           <div className={`rich-text-group${errors.urdu_about ? ' input-error' : ''}`}>
+                              <TipTapEditor value={formData.urdu.about || ''} onChange={html => handleFieldChange('urdu', 'about', html)} isRTL={true} />
+                           </div>
+                           {errors.urdu_about && <span className="error-text">{errors.urdu_about}</span>}
+                        </div>
+                     </div>
+                  </div>
+               </form>
+            </div>
+         )}
       </div>
    );
 }

@@ -58,7 +58,7 @@ export async function POST(req) {
 
       // Get request body
       const biographyPayload = await req.json();
-      const { urdu, english, slug, createdAt } = biographyPayload;
+      const { urdu, english, slug, createdAt, supabasePersonId } = biographyPayload;
 
       // Validate required fields in Urdu
       if (!urdu?.name || !urdu.name.trim()) {
@@ -106,6 +106,7 @@ export async function POST(req) {
          urdu: buildLanguageData(urdu),
          english: buildLanguageData(english || {}),
          slug: slug || urdu.name.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]/g, ''),
+         supabasePersonId: supabasePersonId || null,
          createdBy: uid,
          createdByRole: adminDoc.exists ? 'admin' : 'contributor',
          createdAt: admin.firestore.FieldValue.serverTimestamp(),

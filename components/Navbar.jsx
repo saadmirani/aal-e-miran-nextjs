@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { useMenu } from '@/context/MenuContext';
 import './Navbar.css';
 
 const LogoSVG = () => (
@@ -21,9 +22,23 @@ const LogoSVG = () => (
 );
 
 export default function Navbar() {
+  const { isMenuOpen, toggleMenu } = useMenu();
+
   return (
     <nav className="navbar">
       <div className="navbar-left">
+        <button
+          className="menu-toggle-btn"
+          onClick={toggleMenu}
+          aria-label="Toggle Menu"
+        >
+          <span className={`hamburger ${isMenuOpen ? 'open' : ''}`}>
+            <span></span>
+            <span></span>
+            <span></span>
+          </span>
+        </button>
+
         <Link href="/" className="navbar-brand">
           <LogoSVG />
           <h1 className="navbar-title text-white">Bazm-e-Saadaat</h1>

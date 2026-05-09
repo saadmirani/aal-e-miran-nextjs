@@ -141,9 +141,9 @@
    font-size: 14px;
 }
 
-/* Form Styling */
+/* Form Styling — no max-width so the two-column grid can stretch */
 .biography-form {
-   max-width: 900px;
+   max-width: none;
 }
 
 .form-section {

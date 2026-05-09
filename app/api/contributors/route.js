@@ -100,7 +100,6 @@ export async function POST(req) {
       let resetLink = null;
       try {
          resetLink = await admin.auth().generatePasswordResetLink(email);
-         console.log(`Password reset link for ${email}: ${resetLink}`);
       } catch (emailError) {
          console.error('Error generating password reset link:', emailError);
       }

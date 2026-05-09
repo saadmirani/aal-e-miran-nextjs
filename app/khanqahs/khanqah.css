@@ -1,0 +1,169 @@
+/* Khanqah List Page Styling */
+
+.khanqah-list-container {
+   min-height: 100vh;
+   padding: 24px;
+   background: #f8f9fa;
+}
+
+.khanqah-list-header {
+   background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+   color: white;
+   padding: 60px 40px;
+   text-align: center;
+   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+   border-radius: 12px;
+   margin-bottom: 24px;
+}
+
+.khanqah-list-header h1 {
+   font-size: 3em;
+   margin: 0 0 15px;
+   font-weight: 700;
+   letter-spacing: 2px;
+}
+
+.khanqah-list-header p {
+   font-size: 1.2em;
+   margin: 0;
+   opacity: 0.9;
+}
+
+.khanqah-list-search {
+   margin: 0 0 20px;
+}
+
+.khanqah-search-input {
+   width: 100%;
+   max-width: 400px;
+   padding: 10px 14px;
+   border: 1px solid #d1d5db;
+   border-radius: 6px;
+   font-size: 14px;
+   outline: none;
+   background: white;
+}
+
+.khanqah-search-input:focus {
+   border-color: #1e3a8a;
+   box-shadow: 0 0 0 2px rgba(30, 58, 138, 0.1);
+}
+
+/* Table */
+.khanqah-table-wrapper {
+   background: white;
+   border-radius: 8px;
+   border: 1px solid #e5e7eb;
+   overflow-x: auto;
+}
+
+.khanqah-table {
+   width: 100%;
+   border-collapse: collapse;
+   font-size: 14px;
+}
+
+.khanqah-table thead {
+   background: #1e293b;
+   color: #ffffff;
+}
+
+.khanqah-table th {
+   padding: 12px 16px;
+   text-align: left;
+   font-weight: 600;
+   font-size: 13px;
+   text-transform: uppercase;
+   letter-spacing: 0.3px;
+   white-space: nowrap;
+}
+
+.khanqah-table tbody tr {
+   border-bottom: 1px solid #f0f0f0;
+   transition: background 0.15s ease;
+}
+
+.khanqah-table tbody tr:last-child {
+   border-bottom: none;
+}
+
+.khanqah-table tbody tr:hover {
+   background: #f8fafc;
+}
+
+.khanqah-table td {
+   padding: 12px 16px;
+   color: #374151;
+   vertical-align: top;
+}
+
+.khanqah-name-cell {
+   font-weight: 600;
+   color: #1e3a8a;
+}
+
+.contact-link {
+   color: #2563eb;
+   text-decoration: none;
+   font-weight: 500;
+}
+
+.contact-link:hover {
+   text-decoration: underline;
+}
+
+.khanqah-loading,
+.khanqah-error,
+.khanqah-no-results {
+   text-align: center;
+   padding: 60px 20px;
+   background: white;
+   border-radius: 12px;
+   margin: 20px auto;
+   max-width: 600px;
+}
+
+.khanqah-loading p,
+.khanqah-no-results p {
+   color: #555;
+   font-size: 1.1em;
+}
+
+.khanqah-error {
+   background: #fee;
+   border: 1px solid #fcc;
+}
+
+.khanqah-error p {
+   color: #c33;
+   font-size: 1.1em;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+   .khanqah-list-container {
+      padding: 16px;
+   }
+
+   .khanqah-search-input {
+      max-width: 100%;
+   }
+
+   .khanqah-table th,
+   .khanqah-table td {
+      padding: 10px 12px;
+      font-size: 13px;
+   }
+}
+
+@media (max-width: 480px) {
+   .khanqah-list-header h1 {
+      font-size: 1.3em;
+   }
+
+   .khanqah-table th,
+   .khanqah-table td {
+      padding: 8px 10px;
+      font-size: 12px;
+   }
+}

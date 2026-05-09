@@ -7,8 +7,7 @@
 }
 
 .page-header {
-   max-width: 1000px;
-   margin: 0 auto 32px;
+   margin: 0 0 32px;
    display: flex;
    justify-content: space-between;
    align-items: flex-start;
@@ -93,8 +92,7 @@
 
 /* Form */
 .biography-form {
-   max-width: 1000px;
-   margin: 0 auto;
+   margin: 0;
 }
 
 .form-section {
@@ -213,12 +211,19 @@
    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
 }
 
-.form-group input.input-error {
+.form-group input.input-error,
+.form-group .rich-text-group.input-error {
    border-color: #fc8181;
 }
 
 .form-group input.input-error:focus {
    box-shadow: 0 0 0 3px rgba(252, 129, 129, 0.1);
+}
+
+.form-group .rich-text-group.input-error {
+   border: 2px solid #fc8181;
+   border-radius: 8px;
+   box-shadow: 0 0 0 3px rgba(252, 129, 129, 0.12);
 }
 
 .error-text {
@@ -735,5 +740,491 @@
 
    .preview-wrapper {
       grid-template-columns: 1fr;
+   }
+}
+
+/* ── Person search / auto-populate ───────────────────────────────────────── */
+.person-search-wrapper {
+   position: relative;
+}
+
+.person-search-input {
+   width: 100%;
+   padding: 12px 16px;
+   border: 1px solid #cbd5e0;
+   border-radius: 6px;
+   font-size: 15px;
+   font-family: inherit;
+   transition: border-color 0.2s ease, box-shadow 0.2s ease;
+   background: white;
+}
+
+.person-search-input:focus {
+   outline: none;
+   border-color: #667eea;
+   box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.15);
+}
+
+.person-search-spinner {
+   position: absolute;
+   right: 14px;
+   top: 50%;
+   transform: translateY(-50%);
+   font-size: 13px;
+   color: #718096;
+   pointer-events: none;
+}
+
+.person-search-results {
+   list-style: none;
+   margin: 4px 0 0 0;
+   padding: 0;
+   border: 1px solid #e2e8f0;
+   border-radius: 6px;
+   background: white;
+   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+   max-height: 260px;
+   overflow-y: auto;
+   z-index: 50;
+   position: absolute;
+   width: 100%;
+}
+
+.person-result-item {
+   display: flex;
+   align-items: center;
+   gap: 10px;
+   padding: 10px 14px;
+   cursor: pointer;
+   border-bottom: 1px solid #f0f0f0;
+   transition: background 0.15s ease;
+}
+
+.person-result-item:last-child {
+   border-bottom: none;
+}
+
+.person-result-item:hover {
+   background: #f0f4ff;
+}
+
+.result-name {
+   font-weight: 600;
+   color: #1a202c;
+   font-size: 14px;
+}
+
+.result-meta {
+   font-size: 12px;
+   color: #718096;
+}
+
+/* Selected person chip */
+.selected-person-chip {
+   display: inline-flex;
+   align-items: center;
+   gap: 10px;
+   padding: 8px 14px;
+   background: #ebf4ff;
+   border: 1px solid #bee3f8;
+   border-radius: 20px;
+   font-size: 14px;
+   color: #2b6cb0;
+}
+
+.chip-name {
+   font-weight: 600;
+}
+
+.chip-loading {
+   font-size: 12px;
+   color: #4299e1;
+   font-style: italic;
+}
+
+.chip-clear {
+   background: none;
+   border: none;
+   cursor: pointer;
+   color: #4299e1;
+   font-size: 16px;
+   line-height: 1;
+   padding: 0 2px;
+   transition: color 0.15s ease;
+}
+
+/* Language section headers */
+.lang-section-title {
+   margin: 0 0 20px 0;
+   font-size: 17px;
+   font-weight: 700;
+   padding-bottom: 10px;
+   border-bottom: 2px solid #e2e8f0;
+}
+
+.lang-section-en {
+   color: #2b6cb0;
+   border-bottom-color: #bee3f8;
+}
+
+.lang-section-ur {
+   color: #553c9a;
+   border-bottom-color: #e9d8fd;
+   direction: rtl;
+   text-align: right;
+}
+
+/* Person search section */
+.person-search-section h2 {
+   margin: 0 0 4px 0;
+   font-size: 16px;
+   font-weight: 700;
+   color: #1a202c;
+}
+
+.person-search-box {
+   position: relative;
+   margin-top: 12px;
+}
+
+.search-results-dropdown {
+   list-style: none;
+   margin: 4px 0 0 0;
+   padding: 0;
+   border: 1px solid #e2e8f0;
+   border-radius: 6px;
+   background: white;
+   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+   max-height: 260px;
+   overflow-y: auto;
+   position: absolute;
+   width: 100%;
+   z-index: 50;
+}
+
+.search-results-dropdown li {
+   display: flex;
+   align-items: center;
+   gap: 8px;
+   padding: 10px 14px;
+   cursor: pointer;
+   border-bottom: 1px solid #f0f0f0;
+   flex-wrap: wrap;
+   transition: background 0.15s ease;
+}
+
+.search-results-dropdown li:last-child {
+   border-bottom: none;
+}
+
+.search-results-dropdown li:hover {
+   background: #f0f4ff;
+}
+
+.result-family {
+   font-size: 11px;
+   background: #e9d8fd;
+   color: #553c9a;
+   border-radius: 10px;
+   padding: 2px 8px;
+   font-weight: 600;
+   margin-left: auto;
+}
+
+.search-spinner {
+   font-size: 13px;
+   color: #718096;
+   margin-top: 6px;
+}
+
+
+.chip-clear:hover {
+   color: #2c5282;
+}
+
+/* Section-level error (for about field) */
+.section-error {
+   font-size: 13px;
+   font-weight: 400;
+   color: #c53030;
+}
+
+/* Remove custom field button inside label */
+.btn-remove-custom {
+   background: none;
+   border: none;
+   cursor: pointer;
+   color: #c53030;
+   font-size: 14px;
+   margin-left: 8px;
+   padding: 0;
+   line-height: 1;
+   vertical-align: middle;
+}
+
+.btn-remove-custom:hover {
+   color: #9b2c2c;
+}
+
+/* Custom field row inside list */
+.custom-field-row-list {
+   display: flex;
+   justify-content: space-between;
+   align-items: center;
+   padding: 10px 0;
+   border-bottom: 1px solid #e2e8f0;
+}
+
+.custom-field-row-list:last-child {
+   border-bottom: none;
+   padding-bottom: 0;
+}
+
+.btn-sm {
+   padding: 6px 12px;
+   font-size: 12px;
+}
+
+.btn-info {
+   background: #3182ce;
+   color: white;
+   border: none;
+}
+
+.btn-info:hover {
+   background: #2b6cb0;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   Bio Form Grid  —  two-column (English | Urdu) table layout
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.bio-form-grid {
+   background: white;
+   border-radius: 12px;
+   border: 1px solid #e2e8f0;
+   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+   overflow: hidden;
+   margin-bottom: 24px;
+}
+
+/* Header row */
+.bio-grid-header-row {
+   display: flex;
+   background: #f7fafc;
+   border-bottom: 2px solid #e2e8f0;
+}
+
+.bio-grid-label-cell {
+   width: 175px;
+   min-width: 175px;
+   flex-shrink: 0;
+   border-right: 1px solid #e2e8f0;
+}
+
+.bio-grid-header-cell {
+   flex: 1;
+   padding: 10px 14px;
+   font-size: 11px;
+   font-weight: 700;
+   color: #718096;
+   text-transform: uppercase;
+   letter-spacing: 0.6px;
+}
+
+.bio-hdr-en {
+   border-right: 1px solid #e2e8f0;
+}
+
+.bio-hdr-ur {
+   direction: rtl;
+   text-align: right;
+}
+
+.hdr-ai-note {
+   font-size: 11px;
+   color: #667eea;
+   font-weight: 600;
+   text-transform: none;
+   letter-spacing: 0;
+}
+
+/* Data rows */
+.bio-grid-row {
+   display: flex;
+   align-items: stretch;
+   border-bottom: 1px solid #edf2f7;
+}
+
+.bio-grid-row:last-child {
+   border-bottom: none;
+}
+
+.bio-row-about {
+   align-items: flex-start;
+}
+
+/* Label column */
+.bio-grid-label {
+   width: 175px;
+   min-width: 175px;
+   flex-shrink: 0;
+   padding: 12px 14px;
+   background: #fafbfc;
+   font-size: 13px;
+   font-weight: 600;
+   color: #4a5568;
+   border-right: 1px solid #e2e8f0;
+   display: flex;
+   align-items: center;
+   gap: 2px;
+   line-height: 1.35;
+}
+
+/* Data cells */
+.bio-cell {
+   flex: 1;
+   padding: 10px 12px;
+   display: flex;
+   flex-direction: column;
+   gap: 4px;
+   min-width: 0;
+}
+
+.bio-cell-en {
+   border-right: 1px solid #edf2f7;
+}
+
+.bio-cell-ur {
+   background: #fefcff;
+}
+
+/* Span across both language columns (shared fields) */
+.bio-cell-span {
+   flex: 2;
+}
+
+/* Inputs inside bio cells */
+.bio-cell input,
+.bio-cell textarea {
+   width: 100%;
+   padding: 10px 12px;
+   min-height: 42px;
+   border: 1px solid #cbd5e0;
+   border-radius: 6px;
+   font-size: 14px;
+   font-family: inherit;
+   resize: vertical;
+   transition: border-color 0.2s, box-shadow 0.2s;
+   box-sizing: border-box;
+   line-height: 1.55;
+}
+
+/* Give textarea rows more breathing room */
+.bio-cell textarea {
+   min-height: 80px;
+}
+
+.bio-cell input:focus,
+.bio-cell textarea:focus {
+   outline: none;
+   border-color: #667eea;
+   box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.bio-cell input.input-error {
+   border-color: #fc8181;
+}
+
+/* Urdu input + translate button side-by-side */
+.urdu-field-wrapper {
+   display: flex;
+   gap: 6px;
+   align-items: flex-start;
+   /* align to top so translate btn stays at top for textareas */
+}
+
+.urdu-field-wrapper input {
+   flex: 1;
+   min-width: 0;
+}
+
+.urdu-input {
+   font-family: 'Noto Nastaliq Urdu', 'Urdu Typesetting', 'Segoe UI', sans-serif !important;
+   font-size: 15px !important;
+   line-height: 2 !important;
+   /* Nastaliq needs more vertical space */
+   min-height: 48px !important;
+}
+
+/* Urdu textarea (nasab in urdu column) */
+.urdu-field-wrapper textarea.urdu-input {
+   min-height: 90px !important;
+}
+
+/* AI translate button (↺) */
+.translate-btn {
+   flex-shrink: 0;
+   width: 34px;
+   height: 34px;
+   border: 1px solid #e2e8f0;
+   background: #f7fafc;
+   border-radius: 6px;
+   cursor: pointer;
+   font-size: 16px;
+   display: flex;
+   align-items: center;
+   justify-content: center;
+   color: #667eea;
+   transition: all 0.18s;
+   line-height: 1;
+}
+
+.translate-btn:hover:not(:disabled) {
+   background: #667eea;
+   border-color: #667eea;
+   color: white;
+   box-shadow: 0 2px 8px rgba(102, 126, 234, 0.35);
+}
+
+.translate-btn:disabled {
+   opacity: 0.35;
+   cursor: not-allowed;
+}
+
+/* Responsive: stack columns on narrow screens */
+@media (max-width: 640px) {
+   .bio-grid-header-row {
+      display: none;
+   }
+
+   .bio-grid-row,
+   .bio-row-about {
+      flex-direction: column;
+   }
+
+   .bio-grid-label {
+      width: 100%;
+      min-width: 0;
+      border-right: none;
+      border-bottom: 1px solid #e2e8f0;
+      background: #f7fafc;
+   }
+
+   .bio-cell-en {
+      border-right: none;
+      border-bottom: 1px solid #edf2f7;
+   }
+
+   .bio-cell-ur {
+      background: none;
+   }
+
+   .bio-cell-span {
+      flex: 1;
+   }
+
+   .bio-grid-label-cell {
+      display: none;
    }
 }

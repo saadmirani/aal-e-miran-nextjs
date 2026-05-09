@@ -1,0 +1,254 @@
+/* About Us Page Styling */
+
+.aboutus-container {
+   margin: 0 auto;
+   padding: 10px;
+   background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+   min-height: 100vh;
+   scroll-behavior: smooth;
+}
+
+/* Hero Section */
+.aboutus-hero {
+   background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+   color: white;
+   padding: 60px 40px;
+   text-align: center;
+   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+   margin: 10px;
+   border-radius: 12px;
+}
+
+.aboutus-hero-content h1 {
+   font-size: 3.5em;
+   margin: 0 0 20px;
+   font-weight: 700;
+   letter-spacing: 2px;
+   text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+   margin-bottom: 50px;
+}
+
+.aboutus-hero-subtitle {
+   font-size: 1.5em;
+   margin: 10px 0 15px;
+   letter-spacing: 1px;
+}
+
+.aboutus-hero-tagline {
+   font-size: 1.1em;
+   margin: 0;
+   opacity: 0.9;
+   font-style: italic;
+}
+
+/* Section Styling */
+.aboutus-section {
+   padding: 60px 40px;
+   background: white;
+   margin: 20px;
+   border-radius: 12px;
+   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.aboutus-section h2 {
+   font-size: 2.2em;
+   color: #1e3c72;
+   margin-bottom: 40px;
+   margin-top: 0;
+   text-align: center;
+   position: relative;
+   padding-bottom: 15px;
+}
+
+.aboutus-section h2::after {
+   content: "";
+   position: absolute;
+   bottom: 0;
+   left: 50%;
+   transform: translateX(-50%);
+   width: 80px;
+   height: 3px;
+   background: linear-gradient(90deg, #1e3c72, #2a5298);
+   border-radius: 2px;
+}
+
+.aboutus-section-wrapper {
+   max-width: 1000px;
+   margin: 0 auto;
+}
+
+/* Article Wrapper for Float Layout */
+.aboutus-article-wrapper {
+   display: block;
+}
+
+.aboutus-article-wrapper::after {
+   clear: both;
+   content: "";
+   display: table;
+}
+
+.aboutus-figure {
+   background: #f9f9f9;
+   border: 1px solid rgba(30, 60, 114, 0.15);
+   border-radius: 10px;
+   float: left;
+   margin: 8px 30px 20px 0;
+   padding: 12px;
+   width: 280px;
+   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.aboutus-image {
+   border-radius: 8px;
+   display: block;
+   height: auto;
+   object-fit: cover;
+   width: 100%;
+   aspect-ratio: 3/4;
+}
+
+.aboutus-caption {
+   color: #555;
+   font-size: 0.85em;
+   font-weight: 600;
+   letter-spacing: 0.05em;
+   line-height: 1.5;
+   margin: 10px 0 0;
+   text-align: center;
+   text-transform: uppercase;
+}
+
+.aboutus-content p {
+   color: #444;
+   font-size: 1.05em;
+   line-height: 1.8;
+   margin: 0 0 16px;
+}
+
+.aboutus-intro-text {
+   color: #555;
+   font-size: 1.1em;
+   line-height: 1.8;
+   margin-bottom: 35px;
+   text-align: center;
+}
+
+.aboutus-contribution-grid {
+   display: grid;
+   grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+   gap: 25px;
+   margin: 35px 0;
+}
+
+.aboutus-contribution-card {
+   background: linear-gradient(135deg, #f5f7fa 0%, #e9ecef 100%);
+   padding: 30px 25px;
+   border-radius: 10px;
+   text-align: left;
+   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+   transition: transform 0.3s ease, box-shadow 0.3s ease;
+   border-left: 4px solid #2a5298;
+}
+
+.aboutus-contribution-card:hover {
+   transform: translateY(-8px);
+   box-shadow: 0 8px 20px rgba(30, 60, 114, 0.15);
+}
+
+.aboutus-contribution-card h3 {
+   color: #1e3c72;
+   font-size: 1.35em;
+   font-weight: 600;
+   margin: 0 0 12px;
+}
+
+.aboutus-contribution-card p {
+   color: #555;
+   font-size: 0.98em;
+   line-height: 1.6;
+   margin: 0;
+}
+
+.aboutus-closing-text {
+   color: #555;
+   font-size: 1.05em;
+   line-height: 1.8;
+   margin-top: 35px;
+   text-align: center;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+   .aboutus-container {
+      padding: 0;
+   }
+
+   .aboutus-hero {
+      padding: 50px 25px;
+   }
+
+   .aboutus-hero-content h1 {
+      font-size: 2.5em;
+   }
+
+   .aboutus-hero-subtitle {
+      font-size: 1.2em;
+   }
+
+   .aboutus-section {
+      padding: 40px 25px;
+      margin: 15px;
+   }
+
+   .aboutus-section h2 {
+      font-size: 1.8em;
+   }
+
+   .aboutus-figure {
+      float: none;
+      margin: 0 0 20px;
+      width: 100%;
+   }
+
+   .aboutus-contribution-grid {
+      grid-template-columns: 1fr;
+      gap: 20px;
+   }
+
+   .aboutus-content p {
+      font-size: 1em;
+   }
+}
+
+@media (max-width: 480px) {
+   .aboutus-hero {
+      padding: 40px 15px;
+   }
+
+   .aboutus-hero-content h1 {
+      font-size: 2em;
+   }
+
+   .aboutus-hero-subtitle {
+      font-size: 1em;
+   }
+
+   .aboutus-section {
+      padding: 30px 15px;
+      margin: 10px;
+      border-radius: 8px;
+   }
+
+   .aboutus-section h2 {
+      font-size: 1.5em;
+   }
+
+   .aboutus-contribution-card {
+      padding: 20px 15px;
+   }
+
+   .aboutus-contribution-card h3 {
+      font-size: 1.1em;
+   }
+}

@@ -72,8 +72,7 @@
    flex-wrap: wrap;
 }
 
-.btn-back,
-.btn-home {
+.btn-back {
    padding: 12px 24px;
    border: none;
    border-radius: 6px;
@@ -84,18 +83,14 @@
    display: flex;
    align-items: center;
    gap: 8px;
+   background: #4299e1;
+   color: white;
 }
 
-.btn-back svg,
-.btn-home svg {
+.btn-back svg {
    width: 18px;
    height: 18px;
    stroke-width: 2.5;
-}
-
-.btn-back {
-   background: #4299e1;
-   color: white;
 }
 
 .btn-back:hover {
@@ -104,26 +99,17 @@
    box-shadow: 0 4px 12px rgba(66, 153, 225, 0.3);
 }
 
-.btn-home {
-   background: #48bb78;
-   color: white;
-}
-
-.btn-home:hover {
-   background: #38a169;
-   transform: translateY(-2px);
-   box-shadow: 0 4px 12px rgba(72, 187, 120, 0.3);
-}
-
 /* Header */
 .biography-header {
    background: linear-gradient(135deg, #2d3748 0%, #1a202c 100%);
    color: white;
-   padding: 40px 20px;
+   padding: 50px 20px;
+   margin: 10px;
+   border-radius: 12px;
 }
 
 .header-top {
-   max-width: 1200px;
+   max-width: 100%;
    margin: 0 auto;
    display: flex;
    flex-direction: column;
@@ -161,30 +147,29 @@
    height: 38px;
    padding: 3px;
    border-radius: 20px;
-   border: 2px solid #1e3c72;
-   background: linear-gradient(135deg, #f0f4ff 0%, #e6ecff 100%);
-   backdrop-filter: none;
+   border: 2px solid #2d3748;
+   background: #2d3748;
    cursor: pointer;
    display: flex;
    align-items: center;
    justify-content: space-between;
    font-size: 13px;
    font-weight: 600;
-   color: #1e3c72;
+   color: #a0aec0;
    overflow: hidden;
    transition: all 0.3s ease;
    outline: none;
 }
 
 .lang-toggle:hover {
-   background: linear-gradient(135deg, #e6ecff 0%, #dce4ff 100%);
-   border-color: #162a52;
+   background: #1a202c;
+   border-color: #1a202c;
 }
 
 .lang-toggle:focus,
 .lang-toggle:focus-visible {
    outline: none;
-   box-shadow: 0 0 0 3px rgba(30, 60, 114, 0.1);
+   box-shadow: 0 0 0 3px rgba(45, 55, 72, 0.2);
 }
 
 /* Toggle Labels */
@@ -194,14 +179,14 @@
    z-index: 2;
    transition: color 0.3s ease;
    font-family: system-ui, -apple-system, sans-serif;
-   color: #1e3c72;
+   color: #a0aec0;
 }
 
 .toggle-label.ur {
    font-family: "Noto Nastaliq Urdu", "Jameel Noori Nastaleeq", serif;
    font-size: 11px;
    font-weight: 600;
-   color: #1e3c72;
+   color: #a0aec0;
 }
 
 /* Sliding Background */
@@ -211,11 +196,11 @@
    left: 3px;
    width: calc(50% - 3px);
    height: calc(100% - 6px);
-   background: white;
+   background: #ffffff;
    border-radius: 16px;
    transition: transform 0.3s ease;
    z-index: 1;
-   box-shadow: 0 2px 4px rgba(30, 60, 114, 0.15);
+   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
 }
 
 /* When Urdu is active */
@@ -223,13 +208,24 @@
    transform: translateX(100%);
 }
 
-/* Text color change depending on active */
+/* Active label gets dark color (over white slider) */
 .lang-toggle.en .toggle-label.en {
-   color: #1e3c72;
+   color: #1a202c;
+   font-weight: 700;
 }
 
 .lang-toggle.ur .toggle-label.ur {
-   color: #1e3c72;
+   color: #1a202c;
+   font-weight: 700;
+}
+
+/* Inactive label stays muted */
+.lang-toggle.en .toggle-label.ur {
+   color: #e3e6ea;
+}
+
+.lang-toggle.ur .toggle-label.en {
+   color: #e3e6ea;
 }
 
 /* Main Content */
@@ -239,16 +235,16 @@
 }
 
 .biography-wrapper {
-   max-width: 900px;
+   max-width: 1100px;
    margin: 0 auto;
 }
 
 /* Navigation and Language Toggle Container */
 .top-controls {
    display: flex;
-   justify-content: space-between;
+   justify-content: flex-start;
    align-items: center;
-   gap: 20px;
+   gap: 14px;
    margin-bottom: 30px;
 }
 
@@ -273,29 +269,16 @@
 }
 
 .navigation-buttons .btn-outline-secondary {
-   background: white;
-   color: #2d3748;
-   border: 2px solid #cbd5e0;
+   background: #2d3748;
+   color: #ffffff;
+   border: 2px solid #2d3748;
 }
 
 .navigation-buttons .btn-outline-secondary:hover {
-   background: #f7fafc;
-   border-color: #a0aec0;
+   background: #1a202c;
+   border-color: #1a202c;
    transform: translateY(-2px);
-   box-shadow: 0 2px 8px rgba(45, 55, 72, 0.1);
-}
-
-.navigation-buttons .btn-primary {
-   background: #1e3c72;
-   color: white;
-   border: 2px solid #1e3c72;
-}
-
-.navigation-buttons .btn-primary:hover {
-   background: #162a52;
-   border-color: #162a52;
-   transform: translateY(-2px);
-   box-shadow: 0 2px 8px rgba(30, 60, 114, 0.3);
+   box-shadow: 0 2px 8px rgba(45, 55, 72, 0.25);
 }
 
 .navigation-buttons i {
@@ -498,26 +481,13 @@
    }
 
    .top-controls {
-      flex-direction: column;
-      align-items: stretch;
-      gap: 12px;
+      flex-wrap: wrap;
+      gap: 10px;
       margin-bottom: 24px;
    }
 
-   .navigation-buttons {
-      width: 100%;
-      flex-direction: row;
-      justify-content: stretch;
-   }
-
    .navigation-buttons .btn {
-      flex: 1;
-      justify-content: center;
-      padding: 12px 16px;
-   }
-
-   .lang-toggle {
-      width: 100%;
+      padding: 10px 16px;
    }
 
    .info-grid {
@@ -564,8 +534,7 @@
       gap: 5px;
    }
 
-   .header-actions .btn-back,
-   .header-actions .btn-home {
+   .header-actions .btn-back {
       padding: 8px 12px;
       font-size: 0.85rem;
    }

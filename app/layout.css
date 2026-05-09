@@ -23,19 +23,47 @@ html {
    flex-direction: column;
    height: 100vh;
    width: 100%;
+   position: relative;
+}
+
+.main-wrapper {
+   display: flex;
+   flex: 1;
+   overflow: hidden;
 }
 
 .content {
    flex: 1;
-   padding: 24px;
    overflow-y: auto;
+   overflow-x: hidden;
    background: #f9fafb;
 }
 
 /* Responsive Design */
 @media (max-width: 768px) {
+   .main-wrapper {
+      flex-direction: column;
+      height: calc(100vh - 60px);
+      overflow: visible;
+      position: relative;
+   }
+
    .content {
+      flex: 1;
       padding: 16px;
+      overflow-y: auto;
+      position: relative;
+      z-index: 1;
+   }
+}
+
+@media (max-width: 640px) {
+   .main-wrapper {
+      height: calc(100vh - 60px);
+   }
+
+   .content {
+      padding: 12px;
    }
 }
 

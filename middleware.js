@@ -9,6 +9,16 @@ const authMiddleware = async (request) => {
    // Public API routes (no auth required)
    const publicApiRoutes = ['/api/biographies/list', '/api/biographies/[id]', '/api/auth/login', '/api/auth/logout'];
 
+   // Family tree read endpoints are public
+   if (pathname.startsWith('/api/family-tree/')) {
+      return NextResponse.next();
+   }
+
+   // Family tree admin endpoints (persons, families, etc.)
+   if (pathname.startsWith('/api/admin/')) {
+      return NextResponse.next();
+   }
+
    // Check if current route is a public API route
    const isPublicApi = publicApiRoutes.some((route) => {
       if (route === '/api/biographies/[id]') {
