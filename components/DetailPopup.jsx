@@ -90,7 +90,11 @@ const SpouseSection = memo(function SpouseSection({ spouse, setSection }) {
             <span className={`status-badge ${spouse.alive ? 'alive' : 'deceased'}`}></span>
          </div>
 
-         {spouse.familyName && <div className="family-pill spouse-family-pill">{spouse.familyName}</div>}
+         {(spouse.displayBadge || spouse.familyName) && (
+            <div className="family-pill spouse-family-pill">
+               {spouse.displayBadge || spouse.familyName}
+            </div>
+         )}
 
          {spouse.fname && <p><strong>{relation}</strong> {spouse.fname}</p>}
          {spouse.motherName && <p><strong>Mother:</strong> {spouse.motherName}</p>}

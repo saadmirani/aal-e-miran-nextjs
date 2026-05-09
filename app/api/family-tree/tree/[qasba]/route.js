@@ -79,9 +79,17 @@ async function buildTreePayload(qasba) {
       persons = [...mergedPersonMap.values()];
    }
 
+   // Use ALL fetched person IDs (including extra children) for marriage lookups,
+   // so that children's spouses are included in the tree popup.
+   // This set is computed NOW (before personMap is enriched with external spouses,
+   // missingFatherIds, etc.) so it represents exactly: direct family_persons members +
+   // auto-fetched extra children. It is used as the "family context" for root detection.
+   const allFetchedIds = [...new Set(persons.map(p => p.id))];
+   const allFetchedIdSet = new Set(allFetchedIds);
+
    const [{ data: marriagesBySpouse1 = [] }, { data: marriagesBySpouse2 = [] }] = await Promise.all([
-      supabase.from('marriages').select('*').in('spouse1_id', visibleCoreIds),
-      supabase.from('marriages').select('*').in('spouse2_id', visibleCoreIds)
+      supabase.from('marriages').select('*').in('spouse1_id', allFetchedIds),
+      supabase.from('marriages').select('*').in('spouse2_id', allFetchedIds)
    ]);
 
    const marriagesMap = new Map();
@@ -219,12 +227,17 @@ async function buildTreePayload(qasba) {
    };
 
    const personIdSet = new Set(personIds);
+
+   // Determine which persons are children (have a parent in the family context).
+   // "Family context" = direct family_persons members + auto-fetched extra children.
+   // We intentionally use allFetchedIdSet (built BEFORE personMap enrichment) so that
+   // ancestors pulled in only for name resolution (missingFatherIds) and external spouses
+   // added to personMap for display purposes do NOT count as family parents.
+   // This ensures the actual family root is never wrongly identified as a child.
    const childIds = new Set();
    persons.forEach(p => {
-      // A person is a child if either their father OR mother belongs to this family.
-      // Checking mother_id prevents cross-family children (e.g. child linked to mother's
-      // family where the father is from a different family) from being treated as root nodes.
-      if ((p.father_id && personIdSet.has(p.father_id)) || (p.mother_id && personIdSet.has(p.mother_id))) {
+      if ((p.father_id && allFetchedIdSet.has(p.father_id)) ||
+         (p.mother_id && allFetchedIdSet.has(p.mother_id))) {
          childIds.add(p.id);
       }
    });
@@ -278,6 +291,7 @@ async function buildTreePayload(qasba) {
             place: spousePerson.place_of_birth || '',
             about: spousePerson.about || '',
             isInCurrentFamily: spouseInCurrentFamily,
+            displayBadge: spousePerson.display_badge || null,
             familyId: spouseMembership?.familyId || null,
             familyName: spouseMembership?.familyName || null,
             familyQasba: spouseMembership?.familyQasba || null,
@@ -324,7 +338,10 @@ async function buildTreePayload(qasba) {
             // Using personIdSet (direct members only) rather than personMap (all fetched persons,
             // including external spouses) is key: an external spouse IS in personMap but should
             // not block children from appearing under the mother.
-            if (p.mother_id === person.id && !personIdSet.has(p.father_id)) return true;
+            // Attach under mother only when the father is NOT in the family context
+            // (i.e. the father is external). If father IS in allFetchedIdSet, the child
+            // will already be attached under the father, so skip here to avoid double-placing.
+            if (p.mother_id === person.id && !allFetchedIdSet.has(p.father_id)) return true;
             return false;
          })
          .map(child => buildNode(child))
@@ -492,21 +509,21 @@ async function buildTreePayload(qasba) {
    const forcedLineageRoots = forcedNodes.filter(
       n => Array.isArray(n.children) && n.children.length > 0
    );
-   // A "true orphan" is a person with no children AND no parent link in the direct
-   // family membership set. Nodes that have parent links but were missed by normal
-   // traversal (e.g. leaf children of external-father) should still appear in the tree.
+   // A "true orphan" is a person with no children AND no parent link in the family context.
+   // Use the same allFetchedIdSet logic as childIds for consistency.
    const forcedOrphans = forcedNodes.filter(n => {
       if (Array.isArray(n.children) && n.children.length > 0) return false;
       const person = personMap[n.dbId];
       if (!person) return true;
-      // If the person has a parent that IS a family member, they're not truly detached.
-      return !personIdSet.has(person.father_id) && !personIdSet.has(person.mother_id);
+      return !((person.father_id && allFetchedIdSet.has(person.father_id)) ||
+         (person.mother_id && allFetchedIdSet.has(person.mother_id)));
    });
    const forcedWithParentLinks = forcedNodes.filter(n => {
       if (Array.isArray(n.children) && n.children.length > 0) return false;
       const person = personMap[n.dbId];
       if (!person) return false;
-      return personIdSet.has(person.father_id) || personIdSet.has(person.mother_id);
+      return (person.father_id && allFetchedIdSet.has(person.father_id)) ||
+         (person.mother_id && allFetchedIdSet.has(person.mother_id));
    });
    detachedCount += forcedOrphans.length;
 

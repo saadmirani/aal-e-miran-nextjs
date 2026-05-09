@@ -56,6 +56,7 @@ export function useTreeRendering(config, handleNodeClick, setSection, onLinkedFa
    const sourceTreeRef = useRef(null);
    const autoFocusedIdRef = useRef(null);
    const pendingAnchorRef = useRef(null);
+   const highlightTimerRef = useRef(null);
    // Track node IDs explicitly expanded by the user so we can restore them after re-initialization.
    const expandedNodeIds = useRef(new Set());
 
@@ -251,22 +252,38 @@ export function useTreeRendering(config, handleNodeClick, setSection, onLinkedFa
 
          // Default focus
          const defaultId = config.defaultFocusId;
-         const targetNode = root.descendants().find((d) => d.data && d.data.id === defaultId);
+         const urlFocusId = config.urlFocusId || null;
+         const targetNode = root.descendants().find((d) => d.data &&
+            (String(d.data.id) === String(defaultId) || String(d.data.dbId) === String(defaultId)));
+         const urlTargetNode = urlFocusId
+            ? root.descendants().find((d) => d.data && !d.data.isVirtualRoot &&
+               (String(d.data.id) === String(urlFocusId) || String(d.data.dbId) === String(urlFocusId)))
+            : null;
          if (autoFocusedIdRef.current !== defaultId && !zoomTransformRef.current) {
-            // Fit-to-screen on initial load: scale down wide/tall trees so the whole
-            // tree is visible, but never zoom in beyond 1x.
-            const treeWidth = bounds.maxX - bounds.minX || 1;
-            const treeHeight = bounds.maxY - bounds.minY || 1;
-            const padding = 80; // px padding on each side
-            const scaleX = (width - padding * 2) / treeWidth;
-            const scaleY = (height - padding * 2) / treeHeight;
-            const s = Math.min(scaleX, scaleY, 1); // never zoom in, only out
-            // Center the full tree in the viewport
-            const cx = (bounds.minX + bounds.maxX) / 2;
-            const cy = (bounds.minY + bounds.maxY) / 2;
-            const tx = width / 2 - cx * s;
-            const ty = height / 2 - cy * s;
-            svg.call(zoom.transform, d3.zoomIdentity.translate(tx, ty).scale(s));
+            if (urlTargetNode) {
+               // A specific person was requested via URL (e.g. from global search ?focus=id).
+               // Center on that person at 1:1 scale.
+               const tx = width / 2 - urlTargetNode.x;
+               const ty = height / 2 - urlTargetNode.y;
+               svg.call(zoom.transform, d3.zoomIdentity.translate(tx, ty).scale(1));
+               zoomTransformRef.current = d3.zoomIdentity.translate(tx, ty).scale(1);
+               // Highlight is applied below after nodes are drawn
+            } else {
+               // Fit-to-screen on initial load: scale down wide/tall trees so the whole
+               // tree is visible, but never zoom in beyond 1x.
+               const treeWidth = bounds.maxX - bounds.minX || 1;
+               const treeHeight = bounds.maxY - bounds.minY || 1;
+               const padding = 80; // px padding on each side
+               const scaleX = (width - padding * 2) / treeWidth;
+               const scaleY = (height - padding * 2) / treeHeight;
+               const s = Math.min(scaleX, scaleY, 1); // never zoom in, only out
+               // Center the full tree in the viewport
+               const cx = (bounds.minX + bounds.maxX) / 2;
+               const cy = (bounds.minY + bounds.maxY) / 2;
+               const tx = width / 2 - cx * s;
+               const ty = height / 2 - cy * s;
+               svg.call(zoom.transform, d3.zoomIdentity.translate(tx, ty).scale(s));
+            }
             autoFocusedIdRef.current = defaultId;
          }
 
@@ -304,7 +321,7 @@ export function useTreeRendering(config, handleNodeClick, setSection, onLinkedFa
 
          // Person icon
          personNodes.append('foreignObject')
-            .attr('x', -20).attr('y', -20).attr('width', 40).attr('height', 40)
+            .attr('x', -26).attr('y', -30).attr('width', 52).attr('height', 52)
             .append('xhtml:div')
             .style('display', 'flex').style('align-items', 'center').style('justify-content', 'center')
             .style('width', '100%').style('height', '100%')
@@ -603,6 +620,40 @@ export function useTreeRendering(config, handleNodeClick, setSection, onLinkedFa
          svg.on('dblclick', () => {
             svg.transition().duration(750).call(zoom.transform, d3.zoomIdentity);
          });
+
+         // Highlight the focused person after the tree fully settles.
+         // Uses a debounced timer so rapid re-draws don't kill the animation mid-flight.
+         if (urlFocusId) {
+            clearTimeout(highlightTimerRef.current);
+            highlightTimerRef.current = setTimeout(() => {
+               if (!svgRef.current) return;
+               const circle = d3.select(svgRef.current)
+                  .selectAll('.node')
+                  .filter((d) => d.data && !d.data.isVirtualRoot &&
+                     (String(d.data.id) === String(urlFocusId) ||
+                        String(d.data.dbId) === String(urlFocusId)))
+                  .select('.node-bg');
+               if (circle.empty()) return;
+               let pulseCount = 0;
+               const MAX_PULSES = 5;
+               const doPulse = () => {
+                  if (pulseCount >= MAX_PULSES) {
+                     circle.interrupt().attr('stroke', null).attr('stroke-width', null);
+                     return;
+                  }
+                  pulseCount++;
+                  circle
+                     .attr('stroke', '#facc15')
+                     .attr('stroke-width', 4)
+                     .transition().duration(500).ease(d3.easeSinInOut)
+                     .attr('stroke-width', 14)
+                     .transition().duration(500).ease(d3.easeSinInOut)
+                     .attr('stroke-width', 4)
+                     .on('end', doPulse);
+               };
+               doPulse();
+            }, 400);
+         }
       } catch (error) {
          console.error('Error drawing tree:', error);
       }
@@ -610,7 +661,8 @@ export function useTreeRendering(config, handleNodeClick, setSection, onLinkedFa
 
    const focusNodeById = useCallback((personId) => {
       if (!rootRef.current || !svgRef.current || !zoomRef.current) return;
-      const targetNode = rootRef.current.descendants().find((d) => d.data && d.data.id === personId);
+      const targetNode = rootRef.current.descendants().find((d) => d.data &&
+         (String(d.data.id) === String(personId) || String(d.data.dbId) === String(personId)));
       if (!targetNode) return;
 
       const width = window.innerWidth - 280;
@@ -623,6 +675,36 @@ export function useTreeRendering(config, handleNodeClick, setSection, onLinkedFa
          .call(zoomRef.current.transform, d3.zoomIdentity.translate(tx, ty).scale(1));
 
       zoomTransformRef.current = d3.zoomIdentity.translate(tx, ty).scale(1);
+
+      // Debounced highlight fires after pan settles (800ms = pan duration + buffer)
+      clearTimeout(highlightTimerRef.current);
+      highlightTimerRef.current = setTimeout(() => {
+         if (!svgRef.current) return;
+         const circle = d3.select(svgRef.current)
+            .selectAll('.node')
+            .filter((d) => d.data &&
+               (String(d.data.id) === String(personId) || String(d.data.dbId) === String(personId)))
+            .select('.node-bg');
+         if (circle.empty()) return;
+         let pulseCount = 0;
+         const MAX_PULSES = 5;
+         const doPulse = () => {
+            if (pulseCount >= MAX_PULSES) {
+               circle.interrupt().attr('stroke', null).attr('stroke-width', null);
+               return;
+            }
+            pulseCount++;
+            circle
+               .attr('stroke', '#facc15')
+               .attr('stroke-width', 4)
+               .transition().duration(500).ease(d3.easeSinInOut)
+               .attr('stroke-width', 14)
+               .transition().duration(500).ease(d3.easeSinInOut)
+               .attr('stroke-width', 4)
+               .on('end', doPulse);
+         };
+         doPulse();
+      }, 800);
    }, []);
 
    const getStats = useCallback(() => statsRef.current, []);

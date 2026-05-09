@@ -291,11 +291,7 @@ export default function ShajraPage() {
                : fetchAllFamilies();
 
             const familyDataPromise = treeCrudState.mode === 'edit'
-               ? (
-                  familyDataCacheRef.current.qasba === familyInfo.qasba && familyDataCacheRef.current.data
-                     ? Promise.resolve(familyDataCacheRef.current.data)
-                     : fetchFamilyData(familyInfo.qasba)
-               )
+               ? fetchFamilyData(familyInfo.qasba)
                : Promise.resolve(null);
 
             const [allFamilies, familyDataResult] = await Promise.all([
@@ -313,14 +309,29 @@ export default function ShajraPage() {
             }
 
             const selectedPerson = treeCrudState.mode === 'edit'
-               ? (familyDataResult?.persons || []).find(p => p.id === treeCrudState.node?.dbId) || null
+               ? (familyDataResult?.persons || []).find(p => String(p.id) === String(treeCrudState.node?.dbId)) || null
                : null;
+
+            // Fallback: person may not be in family_persons (e.g. auto-populated child).
+            // Fetch them directly by ID so the edit modal always works.
+            let resolvedPerson = selectedPerson;
+            if (treeCrudState.mode === 'edit' && !selectedPerson && treeCrudState.node?.dbId) {
+               try {
+                  const directRes = await fetch(`/api/family-tree/person/${treeCrudState.node.dbId}`);
+                  if (!cancelled && directRes.ok) {
+                     const directData = await directRes.json();
+                     if (directData?.person) {
+                        resolvedPerson = directData.person;
+                     }
+                  }
+               } catch { /* ignore */ }
+            }
 
             setTreeCrudData({
                loading: false,
                allFamilies: allFamiliesCacheRef.current || [],
                familyData: familyDataResult,
-               person: selectedPerson,
+               person: resolvedPerson,
                error: ''
             });
          } catch (err) {
@@ -416,6 +427,7 @@ export default function ShajraPage() {
    const config = useMemo(() => ({
       qasbaName: familyInfo?.name || '',
       defaultFocusId: focusParam || treeData?.id || null,
+      urlFocusId: focusParam || null,
       jsonData: treeData,
    }), [familyInfo?.name, focusParam, treeData]);
 

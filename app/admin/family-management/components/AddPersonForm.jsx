@@ -1194,6 +1194,15 @@ export default function AddPersonForm({
          }
 
          const personPayload = formatPersonForApi(formData);
+
+         // Default badge to current family name when admin doesn't explicitly set one.
+         if (!personPayload.display_badge && familyId) {
+            const currentFamily = allFamilies.find(f => String(f.id) === String(familyId));
+            if (currentFamily?.name) {
+               personPayload.display_badge = currentFamily.name;
+            }
+         }
+
          const newPerson = await createPerson(personPayload);
 
          if (familyId) {
