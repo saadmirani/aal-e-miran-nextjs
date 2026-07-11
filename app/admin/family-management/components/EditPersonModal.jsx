@@ -183,7 +183,9 @@ function QuickSpouseInlineForm({ data, errors, loading, onChange, onSave, onCanc
          <div style={qsStyles.row}>
             <div style={{ ...qsStyles.group, gridColumn: '1 / -1' }}>
                <label style={qsStyles.label}>Notes / About</label>
-               <textarea name="about" value={data.about} onChange={onChange} placeholder="Additional notes (optional)" rows={2} style={qsStyles.textarea} />
+               <div style={{ display: 'flex', gap: '8px', alignItems: 'flex-start' }}>
+                  <textarea name="about" value={data.about} onChange={onChange} placeholder="Additional notes (optional)" rows={2} style={qsStyles.textarea} />
+               </div>
             </div>
          </div>
 
@@ -518,6 +520,9 @@ export default function EditPersonModal({ person, marriages = [], persons = [], 
    });
    const [quickSpouseErrors, setQuickSpouseErrors] = useState({});
    const [quickSpouseLoading, setQuickSpouseLoading] = useState(false);
+
+
+
    const [autoSelectionNotices, setAutoSelectionNotices] = useState([]);
    const [quickSpouseAutoSelectionNotices, setQuickSpouseAutoSelectionNotices] = useState([]);
    const [quickSpouseSearchResults, setQuickSpouseSearchResults] = useState([]);
@@ -1140,7 +1145,9 @@ export default function EditPersonModal({ person, marriages = [], persons = [], 
 
                   <div style={styles.formGroup}>
                      <label style={styles.label}>About / Biography</label>
-                     <textarea name="about" value={formData.about} onChange={handleChange} rows="3" style={{ ...styles.input, minHeight: '80px', resize: 'vertical' }} placeholder="Short biography or notes" />
+                     <div style={{ display: 'flex', gap: '8px', alignItems: 'flex-start' }}>
+                        <textarea name="about" value={formData.about} onChange={handleChange} rows="3" style={{ ...styles.input, minHeight: '80px', resize: 'vertical' }} placeholder="Short biography or notes" />
+                     </div>
                   </div>
 
                   <div style={styles.formGroup}>
@@ -1304,6 +1311,7 @@ export default function EditPersonModal({ person, marriages = [], persons = [], 
                            onCancel={() => {
                               resetQuickSpouseEditor();
                            }}
+
                         />
                      ) : activeSearchField !== 'additionalSpouse' ? (
                         <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>

@@ -7,6 +7,16 @@ function hasBurialDetails(burial) {
    return Boolean(String(burial.place || '').trim() || String(burial.map || '').trim());
 }
 
+function parseFatherFromAbout(aboutText) {
+   if (!aboutText) return { father: null, about: aboutText };
+   const re = /(?:^|\n)\s*Father\s*:\s*(.+?)\s*(?:\n|$)/i;
+   const m = aboutText.match(re);
+   if (!m) return { father: null, about: aboutText };
+   const father = m[1].trim();
+   const cleaned = aboutText.replace(re, '\n').replace(/^\s+|\s+$/g, '').trim();
+   return { father, about: cleaned };
+}
+
 export const DetailPopup = memo(function DetailPopup({ data, onClose, rootRef, setSection, biographyMap }) {
    const showMotherForSelectedPerson = Boolean(data.motherName);
 
@@ -38,9 +48,10 @@ export const DetailPopup = memo(function DetailPopup({ data, onClose, rootRef, s
                      )}
                   </p>
                )}
-               {data.about && !/^father:\s*.+$/i.test(data.about.trim()) && (
-                  <p><strong>About:</strong> <span className="text-wrap">{data.about}</span></p>
-               )}
+               {(() => {
+                  const parsed = parseFatherFromAbout(data.about);
+                  return parsed.about ? <p><strong>About:</strong> <span className="text-wrap">{parsed.about}</span></p> : null;
+               })()}
                {biographySlug && (
                   <p style={{ marginTop: '8px' }}>
                      <a href={`/biographies/${biographySlug}`} target="_blank" rel="noopener noreferrer" style={{ color: '#667eea', fontWeight: 600, fontSize: '13px' }}>
@@ -96,7 +107,11 @@ const SpouseSection = memo(function SpouseSection({ spouse, setSection }) {
             </div>
          )}
 
-         {spouse.fname && <p><strong>{relation}</strong> {spouse.fname}</p>}
+         {(() => {
+            const parsed = parseFatherFromAbout(spouse.about);
+            const fatherToShow = spouse.fname || parsed.father;
+            return fatherToShow ? <p><strong>{relation}</strong> {fatherToShow}</p> : null;
+         })()}
          {spouse.motherName && <p><strong>Mother:</strong> {spouse.motherName}</p>}
          {spouse.dob && <p><strong>Born:</strong> {spouse.dob}</p>}
          {spouse.place && <p><strong>Birth place:</strong> {spouse.place}</p>}
@@ -109,9 +124,10 @@ const SpouseSection = memo(function SpouseSection({ spouse, setSection }) {
                )}
             </p>
          )}
-         {spouse.about && !/^father:\s*.+$/i.test(spouse.about.trim()) && (
-            <p><strong>About:</strong> <span className="text-wrap">{spouse.about}</span></p>
-         )}
+         {(() => {
+            const parsed = parseFatherFromAbout(spouse.about);
+            return parsed.about ? <p><strong>About:</strong> <span className="text-wrap">{parsed.about}</span></p> : null;
+         })()}
       </div>
    );
 });

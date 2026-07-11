@@ -199,7 +199,9 @@ function QuickSpouseInlineForm({ data, errors, loading, onChange, onSave, onCanc
          <div style={qsStyles.row}>
             <div style={{ ...qsStyles.group, gridColumn: '1 / -1' }}>
                <label style={qsStyles.label}>Notes / About</label>
-               <textarea name="about" value={data.about} onChange={onChange} placeholder="Additional notes (optional)" rows={2} style={qsStyles.textarea} />
+               <div style={{ display: 'flex', gap: '8px', alignItems: 'flex-start' }}>
+                  <textarea name="about" value={data.about} onChange={onChange} placeholder="Additional notes (optional)" rows={2} style={qsStyles.textarea} />
+               </div>
             </div>
          </div>
 
@@ -538,6 +540,21 @@ export default function AddPersonForm({
    const [selectedExistingPerson, setSelectedExistingPerson] = useState(null);
 
    const [formData, setFormData] = useState(buildInitialFormData(initialValues));
+   const nameFocusLock = useRef(false);
+   const applyFormData = (updater) => {
+      setFormData(prev => {
+         const next = typeof updater === 'function' ? updater(prev) : updater;
+         try {
+            // if user is actively typing in the name input, avoid overwriting it
+            if (nameFocusLock.current) {
+               return { ...next, name: prev.name };
+            }
+         } catch (e) {
+            // ignore
+         }
+         return next;
+      });
+   };
 
    const [searchResults, setSearchResults] = useState([]);
    const [showSearch, setShowSearch] = useState(false);
@@ -558,6 +575,7 @@ export default function AddPersonForm({
    const burialDebounce = useRef(null);
    const burialRef = useRef(null);
    const nameSearchRef = useRef(null);
+   const nameSearchTimeout = useRef(null);
 
    useEffect(() => {
       const handler = (e) => {
@@ -578,11 +596,15 @@ export default function AddPersonForm({
       };
 
       document.addEventListener('mousedown', handleClickOutsideNameSearch);
-      return () => document.removeEventListener('mousedown', handleClickOutsideNameSearch);
+      return () => {
+         document.removeEventListener('mousedown', handleClickOutsideNameSearch);
+         if (nameSearchTimeout.current) clearTimeout(nameSearchTimeout.current);
+      };
    }, [showSearch, activeSearchField]);
 
    useEffect(() => {
-      setFormData(buildInitialFormData(initialValues));
+      // Use applyFormData to avoid clobbering the `name` while user is actively typing.
+      applyFormData(() => buildInitialFormData(initialValues));
       setSelectedExistingPerson(null);
       setFatherSpouseOptions([]);
       setAddedSpouses([]);
@@ -638,6 +660,7 @@ export default function AddPersonForm({
    const [quickSpouseLoading, setQuickSpouseLoading] = useState(false);
    const [autoSelectionNotices, setAutoSelectionNotices] = useState([]);
    const [quickSpouseAutoSelectionNotices, setQuickSpouseAutoSelectionNotices] = useState([]);
+
    const [quickSpouseSearchResults, setQuickSpouseSearchResults] = useState([]);
    const [quickSpouseSearching, setQuickSpouseSearching] = useState(false);
    const [quickSpouseBurialSuggestions, setQuickSpouseBurialSuggestions] = useState([]);
@@ -664,6 +687,8 @@ export default function AddPersonForm({
       const current = allFamilies.find(f => String(f.id) === String(familyId));
       return current ? { familyId: current.id, familyName: current.name } : { familyId, familyName: null };
    };
+
+
 
    const normalizeSpouseWithFamily = (person) => {
       return {
@@ -921,6 +946,21 @@ export default function AddPersonForm({
             delete newErrors[name];
             return newErrors;
          });
+      }
+
+      // Debounce name search to avoid flicker / frequent requests
+      if (name === 'name') {
+         if (nameSearchTimeout.current) clearTimeout(nameSearchTimeout.current);
+         const nv = value || '';
+         if (nv.trim().length < 1) {
+            setSearchResults([]);
+            setShowSearch(false);
+            setSearching(false);
+         } else {
+            nameSearchTimeout.current = setTimeout(() => {
+               handleSearch(nv, 'name');
+            }, 300);
+         }
       }
    };
 
@@ -1325,15 +1365,14 @@ export default function AddPersonForm({
                            type="text"
                            name="name"
                            value={formData.name}
-                           onChange={(e) => {
-                              handleInputChange(e);
-                              handleSearch(e.target.value, 'name');
-                           }}
-                           onFocus={() => {
+                           onChange={handleInputChange}
+                           onFocus={(e) => {
+                              nameFocusLock.current = true;
                               if (formData.name.trim().length >= 2) {
                                  handleSearch(formData.name, 'name');
                               }
                            }}
+                           onBlur={() => { nameFocusLock.current = false; }}
                            placeholder="Type full name"
                            style={errors.name ? styles.inputError : styles.input}
                         />
@@ -1505,14 +1544,16 @@ export default function AddPersonForm({
 
                <div style={styles.formGroup}>
                   <label style={styles.label}>About / Biography</label>
-                  <textarea
-                     name="about"
-                     value={formData.about}
-                     onChange={handleInputChange}
-                     placeholder="Short biography or notes about this person"
-                     rows="3"
-                     style={styles.textarea}
-                  />
+                  <div style={{ display: 'flex', gap: '8px', alignItems: 'flex-start' }}>
+                     <textarea
+                        name="about"
+                        value={formData.about}
+                        onChange={handleInputChange}
+                        placeholder="Short biography or notes about this person"
+                        rows="3"
+                        style={styles.textarea}
+                     />
+                  </div>
                </div>
 
                <div style={styles.formGroup}>
@@ -1709,6 +1750,7 @@ export default function AddPersonForm({
                            setQuickSpouseSearchResults([]);
                            setQuickSpouseSearching(false);
                         }}
+
                      />
                   ) : (
                      <div>
@@ -1830,6 +1872,7 @@ export default function AddPersonForm({
                            setQuickSpouseSearchResults([]);
                            setQuickSpouseSearching(false);
                         }}
+
                      />
                   ) : activeSearchField !== 'additionalSpouse' ? (
                      <div style={{ display: 'flex', gap: '8px' }}>
