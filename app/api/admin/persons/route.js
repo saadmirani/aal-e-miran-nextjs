@@ -12,20 +12,7 @@ export async function POST(request) {
       const supabase = getSupabaseAdmin();
       const data = await request.json();
 
-      // Generate sequential unique_id like p0001, p0002, ...
-      const { data: existing } = await supabase
-         .from('persons')
-         .select('unique_id');
-
-      const numbers = (existing || [])
-         .map(p => parseInt(p.unique_id?.replace('p', '')))
-         .filter(n => !isNaN(n))
-         .sort((a, b) => b - a);
-
-      const nextNumber = (numbers[0] || 0) + 1;
-      const uniqueId = `p${String(nextNumber).padStart(4, '0')}`;
-
-      const insertPayload = {
+      const buildPayload = (uniqueId) => ({
          name: data.name,
          unique_id: uniqueId,
          gender: data.gender,
@@ -40,29 +27,98 @@ export async function POST(request) {
          mother_id: data.mother_id || null,
          father_name: data.father_name || null,
          display_badge: data.display_badge?.trim() || null
+      });
+
+      const getNextUniqueIdFromSequence = async () => {
+         const { data, error } = await supabase.rpc('get_next_person_unique_id');
+         if (error) {
+            const message = error.message || '';
+            if (/function .*get_next_person_unique_id|rpc function.*get_next_person_unique_id|could not find function get_next_person_unique_id/i.test(message)) {
+               return null;
+            }
+            throw error;
+         }
+         return typeof data === 'string' ? data : data?.[0] || null;
+      };
+
+      const getNextUniqueIdFallback = async () => {
+         const { data: existing, error } = await supabase
+            .from('persons')
+            .select('unique_id')
+            .order('unique_id', { ascending: false })
+            .limit(1);
+
+         if (error) throw error;
+
+         const lastId = existing?.[0]?.unique_id || '';
+         const lastNumber = parseInt(lastId.replace(/^p/, ''), 10);
+         const nextNumber = Number.isInteger(lastNumber) ? lastNumber + 1 : 1;
+         return `p${String(nextNumber).padStart(4, '0')}`;
+      };
+
+      const getNextUniqueId = async () => {
+         const uniqueId = await getNextUniqueIdFromSequence();
+         if (uniqueId) return uniqueId;
+         return getNextUniqueIdFallback();
+      };
+
+      const isUniqueIdConflict = (error) => {
+         const message = error?.message || '';
+         return /unique constraint.*unique_id|persons_unique_id_key|duplicate key value violates unique constraint "persons_unique_id_key"/i.test(message);
+      };
+
+      const insertPerson = async (payload) => {
+         const response = await supabase
+            .from('persons')
+            .insert([payload])
+            .select()
+            .single();
+         return response;
       };
 
       let person = null;
       let error = null;
+      const maxAttempts = 5;
 
-      const primaryInsert = await supabase
-         .from('persons')
-         .insert([insertPayload])
-         .select()
-         .single();
+      for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
+         const uniqueId = await getNextUniqueId();
+         const payload = buildPayload(uniqueId);
 
-      if (primaryInsert.error && /father_name|display_badge|is_lawald/i.test(primaryInsert.error.message || '')) {
-         const { father_name, display_badge, is_lawald, ...fallbackPayload } = insertPayload;
-         const fallbackInsert = await supabase
-            .from('persons')
-            .insert([fallbackPayload])
-            .select()
-            .single();
-         person = fallbackInsert.data;
-         error = fallbackInsert.error;
-      } else {
+         const primaryInsert = await insertPerson(payload);
+
+         if (primaryInsert.error) {
+            if (isUniqueIdConflict(primaryInsert.error)) {
+               if (attempt === maxAttempts) {
+                  throw new Error('Unable to allocate a unique person ID, please try again.');
+               }
+               continue;
+            }
+
+            if (/father_name|display_badge|is_lawald/i.test(primaryInsert.error.message || '')) {
+               const { father_name, display_badge, is_lawald, ...fallbackPayload } = payload;
+               const fallbackInsert = await insertPerson(fallbackPayload);
+
+               if (fallbackInsert.error) {
+                  if (isUniqueIdConflict(fallbackInsert.error)) {
+                     if (attempt === maxAttempts) {
+                        throw new Error('Unable to allocate a unique person ID, please try again.');
+                     }
+                     continue;
+                  }
+                  throw fallbackInsert.error;
+               }
+
+               person = fallbackInsert.data;
+               error = null;
+               break;
+            }
+
+            throw primaryInsert.error;
+         }
+
          person = primaryInsert.data;
-         error = primaryInsert.error;
+         error = null;
+         break;
       }
 
       if (error) throw error;
