@@ -19,6 +19,34 @@
    padding-left: 16px;
 }
 
+.navbar-right {
+   display: flex;
+   align-items: center;
+   justify-content: flex-end;
+   min-width: 0;
+   margin-right: 10px;
+}
+
+.navbar-timer {
+   font-size: 13px;
+   color: #0f172a;
+   background: linear-gradient(135deg, #f8e1a2 0%, #fbbf24 100%);
+   border: 1px solid rgba(251, 191, 36, 0.35);
+   box-shadow: 0 8px 24px rgba(251, 191, 36, 0.14);
+   padding: 10px 14px;
+   border-radius: 999px;
+   letter-spacing: 0.02em;
+   white-space: nowrap;
+   font-weight: 600;
+}
+
+.navbar-timer.warning {
+   color: #ffffff;
+   background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+   border-color: rgba(255, 255, 255, 0.2);
+   box-shadow: 0 8px 28px rgba(220, 38, 38, 0.24);
+}
+
 /* Hamburger Toggle Button - Hidden on desktop, visible on mobile */
 .menu-toggle-btn {
    display: none;

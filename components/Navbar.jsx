@@ -1,7 +1,9 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useMenu } from '@/context/MenuContext';
+import { useAuth } from '@/context/AuthContext';
 import './Navbar.css';
 
 const LogoSVG = () => (
@@ -23,6 +25,29 @@ const LogoSVG = () => (
 
 export default function Navbar() {
   const { isMenuOpen, toggleMenu } = useMenu();
+  const { isAdmin, sessionExpiresAt } = useAuth();
+  const [sessionCountdown, setSessionCountdown] = useState('');
+  const [sessionWarning, setSessionWarning] = useState(false);
+
+  useEffect(() => {
+    if (!isAdmin || !sessionExpiresAt) {
+      setSessionCountdown('');
+      setSessionWarning(false);
+      return;
+    }
+
+    const updateCountdown = () => {
+      const secondsLeft = Math.max(0, Math.floor((sessionExpiresAt.getTime() - Date.now()) / 1000));
+      const minutes = Math.floor(secondsLeft / 60);
+      const seconds = secondsLeft % 60;
+      setSessionCountdown(`${minutes}:${seconds.toString().padStart(2, '0')}`);
+      setSessionWarning(secondsLeft > 0 && secondsLeft <= 300);
+    };
+
+    updateCountdown();
+    const interval = setInterval(updateCountdown, 1000);
+    return () => clearInterval(interval);
+  }, [isAdmin, sessionExpiresAt]);
 
   return (
     <nav className="navbar">
@@ -43,6 +68,11 @@ export default function Navbar() {
           <LogoSVG />
           <h1 className="navbar-title text-white">Bazm-e-Saadaat</h1>
         </Link>
+      </div>
+      <div className="navbar-right">
+        {sessionCountdown && (
+          <div className={`navbar-timer${sessionWarning ? ' warning' : ''}`}>Session expires in {sessionCountdown}</div>
+        )}
       </div>
     </nav>
   );

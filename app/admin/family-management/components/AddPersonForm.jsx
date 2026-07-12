@@ -561,6 +561,8 @@ export default function AddPersonForm({
    const [activeSearchField, setActiveSearchField] = useState(null);
    const [searchQuery, setSearchQuery] = useState('');
    const [fatherSpouseOptions, setFatherSpouseOptions] = useState([]);
+   const [loadingSpouseTarget, setLoadingSpouseTarget] = useState(null); // 'father' | 'mother' | null
+   const [motherSpouseOptions, setMotherSpouseOptions] = useState([]);
    const [addedSpouses, setAddedSpouses] = useState([]);
    const [searching, setSearching] = useState(false);
    const [showQuickFamilyModal, setShowQuickFamilyModal] = useState(false);
@@ -615,6 +617,124 @@ export default function AddPersonForm({
          !!initialValues.displayBadge && !['Ahl-e-Bait', 'Sahaba', 'Shared Ancestor', 'Usmani', 'Abbasi', 'Qaadri'].includes(initialValues.displayBadge)
       );
    }, [initialValues]);
+
+   // When fatherId is set (including when preloaded), fetch their details to populate spouse options.
+   useEffect(() => {
+      const loadFatherSpouses = async () => {
+         const personId = formData.fatherId;
+         if (!personId) {
+            setFatherSpouseOptions([]);
+            return;
+         }
+
+         setLoadingSpouseTarget('father');
+         try {
+            const details = await fetchPersonDetails(personId);
+            const spouseCandidates = Array.isArray(details?.spouses)
+               ? details.spouses
+                  .filter(sp => sp?.id && sp.id !== personId)
+                  .map(sp => ({
+                     id: sp.id,
+                     name: sp.name || '',
+                     gender: sp.gender || null,
+                     familyId: sp.familyId || null,
+                     familyName: sp.familyName || null,
+                     fatherName: sp.fatherName || ''
+                  }))
+               : [];
+
+            const uniqueSpouses = [];
+            const seen = new Set();
+            for (const spouse of spouseCandidates) {
+               if (seen.has(spouse.id)) continue;
+               seen.add(spouse.id);
+               uniqueSpouses.push(spouse);
+            }
+
+            setFatherSpouseOptions(uniqueSpouses);
+            console.debug('AddPersonForm: loaded father spouse options', { personId, count: uniqueSpouses.length });
+
+            // If exactly one spouse and no locked mother selection, auto-fill mother
+            if (uniqueSpouses.length === 1 && !lockedSelections.motherId && !formData.motherId) {
+               const spouse = uniqueSpouses[0];
+               applyFormData(prev => ({
+                  ...prev,
+                  motherId: spouse.id,
+                  motherName: spouse.name,
+                  motherFamilyId: spouse.familyId,
+                  motherFamilyName: spouse.familyName
+               }));
+            }
+         } catch (err) {
+            console.debug('AddPersonForm: failed loading father spouses', { personId, err });
+            // ignore failures and keep mother selection manual
+            setFatherSpouseOptions([]);
+         } finally {
+            setLoadingSpouseTarget(null);
+         }
+      };
+
+      loadFatherSpouses();
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+   }, [formData.fatherId]);
+
+   // When motherId is set (including when preloaded), fetch their details to populate spouse options (for father selection).
+   useEffect(() => {
+      const loadMotherSpouses = async () => {
+         const personId = formData.motherId;
+         if (!personId) {
+            setMotherSpouseOptions([]);
+            return;
+         }
+
+         setLoadingSpouseTarget('mother');
+         try {
+            const details = await fetchPersonDetails(personId);
+            const spouseCandidates = Array.isArray(details?.spouses)
+               ? details.spouses
+                  .filter(sp => sp?.id && sp.id !== personId)
+                  .map(sp => ({
+                     id: sp.id,
+                     name: sp.name || '',
+                     gender: sp.gender || null,
+                     familyId: sp.familyId || null,
+                     familyName: sp.familyName || null,
+                     fatherName: sp.fatherName || ''
+                  }))
+               : [];
+
+            const uniqueSpouses = [];
+            const seen = new Set();
+            for (const spouse of spouseCandidates) {
+               if (seen.has(spouse.id)) continue;
+               seen.add(spouse.id);
+               uniqueSpouses.push(spouse);
+            }
+
+            setMotherSpouseOptions(uniqueSpouses);
+            console.debug('AddPersonForm: loaded mother spouse options', { personId, count: uniqueSpouses.length });
+
+            if (uniqueSpouses.length === 1 && !lockedSelections.fatherId && !formData.fatherId) {
+               const spouse = uniqueSpouses[0];
+               applyFormData(prev => ({
+                  ...prev,
+                  fatherId: spouse.id,
+                  fatherName: spouse.name,
+                  fatherFamilyId: spouse.familyId,
+                  fatherFamilyName: spouse.familyName
+               }));
+            }
+         } catch (err) {
+            console.debug('AddPersonForm: failed loading mother spouses', { personId, err });
+            setMotherSpouseOptions([]);
+         } finally {
+            setLoadingSpouseTarget(null);
+         }
+      };
+
+      loadMotherSpouses();
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+   }, [formData.motherId]);
 
    const duplicateNameWarning = formData.name.trim()
       ? duplicateNameCandidates.find(candidate => candidate.trim().toLowerCase() === formData.name.trim().toLowerCase())
@@ -1409,6 +1529,8 @@ export default function AddPersonForm({
                   </div>
                )}
 
+
+
                <div style={styles.twoColumns}>
                   <div style={styles.formGroup}>
                      <label style={styles.label}>Gender *</label>
@@ -1576,7 +1698,14 @@ export default function AddPersonForm({
 
                <div style={styles.twoColumns}>
                   <div style={styles.formGroup}>
-                     <label style={styles.label}>Father</label>
+                     <label style={styles.label}>
+                        Father
+                        {loadingSpouseTarget === 'father' && (
+                           <span style={{ marginLeft: '8px', display: 'inline-flex', alignItems: 'center' }}>
+                              <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                           </span>
+                        )}
+                     </label>
                      {formData.fatherId ? (
                         <div style={styles.selectedItem}>
                            <span>{formData.fatherName}</span>
@@ -1651,27 +1780,32 @@ export default function AddPersonForm({
                            )}
                         </div>
                      )}
-                     {formData.fatherId && fatherSpouseOptions.length > 1 && !formData.motherId && (
+                     {formData.fatherId && fatherSpouseOptions.length > 0 && (
                         <div style={styles.motherSuggestionBox}>
                            <small style={styles.hintText}>Multiple spouses found for selected father. Optionally choose one:</small>
                            <div style={styles.motherSuggestionList}>
                               {fatherSpouseOptions.map(option => (
-                                 <button
-                                    key={option.id}
-                                    type="button"
-                                    onClick={() => {
-                                       setFormData(prev => ({
-                                          ...prev,
-                                          motherId: option.id,
-                                          motherName: option.name,
-                                          motherFamilyId: option.familyId || null,
-                                          motherFamilyName: option.familyName || null
-                                       }));
-                                    }}
-                                    style={styles.motherSuggestionChip}
-                                 >
-                                    {option.name}
-                                 </button>
+                                 <label key={option.id} style={styles.motherSuggestionItem}>
+                                    <input
+                                       type="checkbox"
+                                       checked={String(formData.motherId) === String(option.id)}
+                                       onChange={() => {
+                                          // Toggle selection: selecting sets mother, selecting again clears it
+                                          if (String(formData.motherId) === String(option.id)) {
+                                             applyFormData(prev => ({ ...prev, motherId: null, motherName: '', motherFamilyId: null, motherFamilyName: null }));
+                                          } else {
+                                             applyFormData(prev => ({ ...prev, motherId: option.id, motherName: option.name || '', motherFamilyId: option.familyId || null, motherFamilyName: option.familyName || null }));
+                                          }
+                                       }}
+                                       style={{ marginRight: '8px' }}
+                                    />
+                                    <span style={{ marginRight: '10px' }}>{option.name}</span>
+                                    {option.fatherName ? (
+                                       <small style={styles.fatherText}> • Father: {option.fatherName}</small>
+                                    ) : option.familyName ? (
+                                       <small style={styles.familyTag}>{option.familyName}</small>
+                                    ) : null}
+                                 </label>
                               ))}
                            </div>
                         </div>
@@ -2323,6 +2457,16 @@ const styles = {
       gap: '6px',
       marginTop: '6px'
    },
+   motherSuggestionItem: {
+      display: 'flex',
+      alignItems: 'center',
+      gap: '6px',
+      padding: '6px 8px',
+      borderRadius: '6px',
+      backgroundColor: '#fff',
+      border: '1px solid #e6eef8',
+      fontSize: '13px'
+   },
    motherSuggestionChip: {
       border: '1px solid #bfdbfe',
       backgroundColor: '#eff6ff',
@@ -2438,6 +2582,7 @@ const styles = {
       fontSize: '10px',
       color: '#0077b6'
    },
+
    unlinkedTag: {
       display: 'inline-block',
       marginLeft: '6px',

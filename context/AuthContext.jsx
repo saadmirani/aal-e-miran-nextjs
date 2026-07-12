@@ -6,6 +6,20 @@ import { onIdTokenChanged } from 'firebase/auth';
 
 const AuthContext = createContext();
 
+async function updateSessionExpiration(firebaseUser, setSessionExpiresAt) {
+   if (!firebaseUser) {
+      setSessionExpiresAt(null);
+      return;
+   }
+
+   try {
+      const tokenResult = await firebaseUser.getIdTokenResult();
+      setSessionExpiresAt(new Date(tokenResult.expirationTime));
+   } catch {
+      setSessionExpiresAt(null);
+   }
+}
+
 export function AuthProvider({ children }) {
    const [isAdmin, setIsAdmin] = useState(false);
    const [loading, setLoading] = useState(true);
@@ -21,14 +35,7 @@ export function AuthProvider({ children }) {
       // Firebase ID tokens last 1 hour; if they can't be silently refreshed, user is null.
       const unsubscribe = onIdTokenChanged(auth, async (firebaseUser) => {
          if (firebaseUser) {
-            // Token is valid — get expiry from the decoded token result
-            try {
-               const tokenResult = await firebaseUser.getIdTokenResult();
-               const expiresAt = new Date(tokenResult.expirationTime);
-               setSessionExpiresAt(expiresAt);
-            } catch {
-               // Ignore — token refresh failure will cause firebaseUser to become null next cycle
-            }
+            await updateSessionExpiration(firebaseUser, setSessionExpiresAt);
          } else {
             // No active Firebase session — auto-logout if localStorage still shows admin
             const stored = localStorage.getItem('adminData');
@@ -47,9 +54,13 @@ export function AuthProvider({ children }) {
       return () => unsubscribe();
    }, []);
 
-   const login = (userData) => {
+   const login = async (userData) => {
       localStorage.setItem('adminData', JSON.stringify(userData));
       setIsAdmin(true);
+
+      if (auth.currentUser) {
+         await updateSessionExpiration(auth.currentUser, setSessionExpiresAt);
+      }
    };
 
    const logout = () => {
