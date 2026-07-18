@@ -40,6 +40,13 @@ const nextConfig = {
          ],
       };
    },
+   // Include content directory in Vercel serverless function bundles
+   // so fs.readFileSync works in production for family-info API route.
+   experimental: {
+      outputFileTracingIncludes: {
+         '/api/family-info/[qasba]': ['./content/family-info/**/*.md'],
+      },
+   },
 };
 
 module.exports = nextConfig;

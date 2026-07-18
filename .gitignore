@@ -8,4 +8,8 @@ npm-debug.log*
 .env.*.local
 .vercel
 *.md
+# Allow family-info content markdown files (needed in production)
+!content/
+!content/**
+!content/**/*.md
 *.sql
