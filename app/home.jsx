@@ -1,9 +1,13 @@
 'use client';
 
 import './home.css';
+import { useRouter } from 'next/navigation';
 import GlobalSearchBox from '@/components/GlobalSearchBox';
+import { useMenu } from '@/context/MenuContext';
 
 export default function Home() {
+   const router = useRouter();
+   const { openMenu, openShajraMenu } = useMenu();
    return (
       <div className="home-container">
          {/* Hero Section */}
@@ -101,9 +105,9 @@ export default function Home() {
                <div className="timeline-item">
                   <div className="timeline-dot"></div>
                   <div className="timeline-content">
-                     <h3>Qabristan (Graveyard) Mapping</h3>
+                     <h3>Qabristan (Sacred Sites) Mapping</h3>
                      <p>
-                        Explore and view the sacred graveyards where Sufi saints are buried.
+                        Explore and view the sacred sites where Sufi saints are buried.
                         A visual guide to honor their resting places and their contributions to spirituality.
                      </p>
                   </div>
@@ -115,22 +119,22 @@ export default function Home() {
          <section className="section features-section">
             <h2>Available Features</h2>
             <div className="features-grid">
-               <div className="feature-item">
+               <div className="feature-item feature-item--link" onClick={openShajraMenu}>
                   <span className="feature-icon">🔍</span>
                   <h4>Interactive Family Trees</h4>
                   <p>Explore detailed genealogies with zoom, pan, and node information.</p>
                </div>
-               <div className="feature-item">
+               <div className="feature-item feature-item--link" onClick={openMenu}>
                   <span className="feature-icon">🗺️</span>
-                  <h4>Graveyard Locations</h4>
+                  <h4>Sacred Sites</h4>
                   <p>View and locate sacred burial sites of our Sufi saints.</p>
                </div>
-               <div className="feature-item">
+               <div className="feature-item feature-item--link" onClick={() => router.push('/biographies/view-all')}>
                   <span className="feature-icon">📖</span>
                   <h4>Historical Records</h4>
                   <p>Access detailed biographical information and historical context.</p>
                </div>
-               <div className="feature-item">
+               <div className="feature-item feature-item--link" onClick={openShajraMenu}>
                   <span className="feature-icon">👥</span>
                   <h4>Community Heritage</h4>
                   <p>Discover your connection to the greater Saadat community.</p>

@@ -132,6 +132,194 @@
    z-index: 100;
 }
 
+/* Family Info icon button */
+.tree-info-btn {
+   display: flex;
+   align-items: center;
+   justify-content: center;
+   width: 38px;
+   height: 38px;
+   background: rgba(255, 255, 255, 0.95);
+   border: 1px solid #e5e7eb;
+   border-radius: 8px;
+   cursor: pointer;
+   color: #64748b;
+   font-size: 17px;
+   transition: all 0.18s ease;
+   flex-shrink: 0;
+   box-shadow: 0 6px 18px rgba(16, 24, 40, 0.06);
+}
+
+.tree-info-btn:hover {
+   background: #eff6ff;
+   color: #1e3a8a;
+   border-color: #93c5fd;
+}
+
+/* ── Family Info Slide-in Panel ─────────────────────────────── */
+
+.family-info-overlay {
+   position: fixed;
+   inset: 0;
+   background: rgba(0, 0, 0, 0.40);
+   z-index: 600;
+   display: flex;
+   justify-content: flex-end;
+}
+
+.family-info-panel {
+   width: min(500px, 94vw);
+   height: 100%;
+   background: #ffffff;
+   border-left: 1px solid #e5e7eb;
+   display: flex;
+   flex-direction: column;
+   overflow: hidden;
+   box-shadow: -4px 0 28px rgba(0, 0, 0, 0.14);
+   animation: familyInfoSlideIn 0.22s ease;
+}
+
+@keyframes familyInfoSlideIn {
+   from {
+      transform: translateX(100%);
+      opacity: 0;
+   }
+
+   to {
+      transform: translateX(0);
+      opacity: 1;
+   }
+}
+
+.family-info-header {
+   display: flex;
+   align-items: center;
+   justify-content: space-between;
+   padding: 18px 22px;
+   border-bottom: 1px solid #e5e7eb;
+   background: #f8fafc;
+   flex-shrink: 0;
+}
+
+.family-info-header h2 {
+   font-size: 16px;
+   font-weight: 700;
+   color: #1e293b;
+   margin: 0;
+}
+
+.family-info-close {
+   background: none;
+   border: none;
+   font-size: 24px;
+   line-height: 1;
+   cursor: pointer;
+   color: #94a3b8;
+   padding: 0 2px;
+   transition: color 0.15s;
+}
+
+.family-info-close:hover {
+   color: #1e293b;
+}
+
+.family-info-body {
+   flex: 1;
+   overflow-y: auto;
+   padding: 24px 26px;
+   scrollbar-width: thin;
+   scrollbar-color: #cbd5e1 transparent;
+}
+
+.family-info-body::-webkit-scrollbar {
+   width: 6px;
+}
+
+.family-info-body::-webkit-scrollbar-thumb {
+   background: #cbd5e1;
+   border-radius: 3px;
+}
+
+.family-info-loading {
+   display: flex;
+   flex-direction: column;
+   align-items: center;
+   gap: 10px;
+   padding: 60px 0;
+   color: #94a3b8;
+   font-size: 14px;
+}
+
+.family-info-loading i {
+   font-size: 22px;
+}
+
+.family-info-empty {
+   text-align: center;
+   color: #94a3b8;
+   font-size: 14px;
+   padding: 60px 20px;
+   line-height: 1.6;
+}
+
+/* Markdown rendered content */
+.family-info-body h2 {
+   font-size: 14px;
+   font-weight: 700;
+   color: #1e3a8a;
+   text-transform: uppercase;
+   letter-spacing: 0.05em;
+   margin: 28px 0 10px;
+   padding-bottom: 6px;
+   border-bottom: 1px solid #e2e8f0;
+}
+
+.family-info-body h2:first-child {
+   margin-top: 0;
+}
+
+.family-info-body h3 {
+   font-size: 13px;
+   font-weight: 700;
+   color: #374151;
+   margin: 16px 0 6px;
+}
+
+.family-info-body p {
+   font-size: 14px;
+   line-height: 1.75;
+   color: #374151;
+   margin: 0 0 10px;
+}
+
+.family-info-body ul,
+.family-info-body ol {
+   padding-left: 18px;
+   margin: 0 0 10px;
+}
+
+.family-info-body li {
+   font-size: 14px;
+   line-height: 1.65;
+   color: #374151;
+   margin-bottom: 4px;
+}
+
+.family-info-body strong {
+   font-weight: 600;
+   color: #1f2937;
+}
+
+.family-info-body a {
+   color: #2563eb;
+   text-decoration: underline;
+   text-underline-offset: 2px;
+}
+
+.family-info-body a:hover {
+   color: #1d4ed8;
+}
+
 .search-container {
    flex: 1;
    min-width: 200px;
@@ -169,6 +357,7 @@
    box-shadow: 0 6px 18px rgba(16, 24, 40, 0.06);
    font-size: 14px;
    -webkit-appearance: none;
+   appearance: none;
 }
 
 .search-suggestions {

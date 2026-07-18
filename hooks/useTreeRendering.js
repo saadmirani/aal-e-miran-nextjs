@@ -453,6 +453,35 @@ export function useTreeRendering(config, handleNodeClick, setSection, onLinkedFa
                   .transition().duration(600)
                   .call(zoomRef.current.transform, transform);
                zoomTransformRef.current = transform;
+
+               clearTimeout(highlightTimerRef.current);
+               highlightTimerRef.current = setTimeout(() => {
+                  if (!svgRef.current) return;
+                  const circle = d3.select(svgRef.current)
+                     .selectAll('.node')
+                     .filter((n) => n.data && n.data.id === spouseNodeId)
+                     .select('.node-bg');
+                  if (circle.empty()) return;
+                  let pulseCount = 0;
+                  const MAX_PULSES = 3;
+                  const doPulse = () => {
+                     if (pulseCount >= MAX_PULSES) {
+                        circle.interrupt().style('stroke', null).style('stroke-width', null).style('filter', null);
+                        return;
+                     }
+                     pulseCount++;
+                     circle
+                        .style('stroke', '#22c55e')
+                        .style('stroke-width', '3px')
+                        .style('filter', 'drop-shadow(0 0 8px #22c55e) drop-shadow(0 2px 6px rgba(0,0,0,0.12))')
+                        .transition().duration(350).ease(d3.easeSinInOut)
+                        .style('stroke-width', '10px')
+                        .transition().duration(350).ease(d3.easeSinInOut)
+                        .style('stroke-width', '3px')
+                        .on('end', doPulse);
+                  };
+                  doPulse();
+               }, 700);
             });
 
          nodesWithOwnChildren
@@ -635,20 +664,21 @@ export function useTreeRendering(config, handleNodeClick, setSection, onLinkedFa
                   .select('.node-bg');
                if (circle.empty()) return;
                let pulseCount = 0;
-               const MAX_PULSES = 5;
+               const MAX_PULSES = 3;
                const doPulse = () => {
                   if (pulseCount >= MAX_PULSES) {
-                     circle.interrupt().attr('stroke', null).attr('stroke-width', null);
+                     circle.interrupt().style('stroke', null).style('stroke-width', null).style('filter', null);
                      return;
                   }
                   pulseCount++;
                   circle
-                     .attr('stroke', '#facc15')
-                     .attr('stroke-width', 4)
-                     .transition().duration(500).ease(d3.easeSinInOut)
-                     .attr('stroke-width', 14)
-                     .transition().duration(500).ease(d3.easeSinInOut)
-                     .attr('stroke-width', 4)
+                     .style('stroke', '#22c55e')
+                     .style('stroke-width', '3px')
+                     .style('filter', 'drop-shadow(0 0 8px #22c55e) drop-shadow(0 2px 6px rgba(0,0,0,0.12))')
+                     .transition().duration(350).ease(d3.easeSinInOut)
+                     .style('stroke-width', '10px')
+                     .transition().duration(350).ease(d3.easeSinInOut)
+                     .style('stroke-width', '3px')
                      .on('end', doPulse);
                };
                doPulse();
@@ -687,20 +717,21 @@ export function useTreeRendering(config, handleNodeClick, setSection, onLinkedFa
             .select('.node-bg');
          if (circle.empty()) return;
          let pulseCount = 0;
-         const MAX_PULSES = 5;
+         const MAX_PULSES = 3;
          const doPulse = () => {
             if (pulseCount >= MAX_PULSES) {
-               circle.interrupt().attr('stroke', null).attr('stroke-width', null);
+               circle.interrupt().style('stroke', null).style('stroke-width', null).style('filter', null);
                return;
             }
             pulseCount++;
             circle
-               .attr('stroke', '#facc15')
-               .attr('stroke-width', 4)
-               .transition().duration(500).ease(d3.easeSinInOut)
-               .attr('stroke-width', 14)
-               .transition().duration(500).ease(d3.easeSinInOut)
-               .attr('stroke-width', 4)
+               .style('stroke', '#22c55e')
+               .style('stroke-width', '3px')
+               .style('filter', 'drop-shadow(0 0 8px #22c55e) drop-shadow(0 2px 6px rgba(0,0,0,0.12))')
+               .transition().duration(350).ease(d3.easeSinInOut)
+               .style('stroke-width', '10px')
+               .transition().duration(350).ease(d3.easeSinInOut)
+               .style('stroke-width', '3px')
                .on('end', doPulse);
          };
          doPulse();

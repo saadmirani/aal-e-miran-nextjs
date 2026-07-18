@@ -1,0 +1,304 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 565" role="img" aria-label="Bazm-e-Saadaat — Roots. Legacy. Light.">
+  <defs>
+    <radialGradient id="sunGlow" cx="50%" cy="45%" r="55%">
+      <stop offset="0%"   stop-color="#f8e89a" stop-opacity="1"/>
+      <stop offset="55%"  stop-color="#e8c85a" stop-opacity="0.60"/>
+      <stop offset="100%" stop-color="#c9a840" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="medGold" cx="35%" cy="28%" r="70%">
+      <stop offset="0%"   stop-color="#f8e080"/>
+      <stop offset="60%"  stop-color="#c9a840"/>
+      <stop offset="100%" stop-color="#8b6a10"/>
+    </radialGradient>
+  </defs>
+
+  <!-- ── OUTER CIRCLE ── -->
+  <circle cx="250" cy="212" r="198" fill="none" stroke="#1c4a2c" stroke-width="3.5"/>
+
+  <!-- ── GOLDEN SUN GLOW ── -->
+  <circle cx="262" cy="278" r="72" fill="url(#sunGlow)"/>
+
+  <!-- ══════════════════════════════════════════
+       TREE TRUNK  (large organic dark shape, left side)
+       ══════════════════════════════════════════ -->
+  <!-- Left outer edge of trunk -->
+  <path d="
+    M 158 398
+    C 155 375 148 350 140 322
+    C 133 296 127 272 125 252
+    C 123 234 126 220 132 212
+    C 126 208 118 210 114 220
+    C 108 234 106 256 110 280
+    C 114 306 124 334 132 360
+    C 138 378 140 394 138 404
+    L 158 404 Z
+  " fill="#1c4a2c"/>
+
+  <!-- Right/inner trunk with upper extension -->
+  <path d="
+    M 162 398
+    C 162 372 160 348 158 322
+    C 156 298 154 278 155 260
+    C 156 244 160 232 166 224
+    C 172 216 180 212 186 214
+    C 192 216 196 226 196 240
+    C 196 258 192 278 188 300
+    C 184 322 180 348 178 374
+    C 176 386 174 396 172 402
+    L 162 402 Z
+  " fill="#1c4a2c"/>
+
+  <!-- Trunk upper stem going to branches -->
+  <path d="
+    M 166 250
+    C 168 232 172 214 176 196
+    C 180 178 186 162 190 147
+    C 195 132 198 118 198 103
+    C 198 90 196 78 194 70
+    L 206 68
+    C 208 80 210 94 210 108
+    C 210 124 206 140 200 158
+    C 194 176 188 196 183 216
+    C 178 236 174 258 172 278
+    L 162 272 Z
+  " fill="#1c4a2c"/>
+
+  <!-- Arabic calligraphic form of ع/آل merged with trunk -->
+  <path d="
+    M 138 270
+    C 126 270 116 280 114 295
+    C 112 312 118 330 130 340
+    C 140 348 152 349 158 342
+    C 152 352 140 360 126 358
+    L 122 370
+    C 138 374 155 366 164 353
+    C 173 340 174 324 168 310
+    C 162 296 152 288 145 278
+    C 141 270 138 268 138 270 Z
+  " fill="#1c4a2c"/>
+
+  <!-- ══════════════════════════════════════════
+       BRANCHES
+       ══════════════════════════════════════════ -->
+  <!-- Main upper branch (left-to-right, mid height) -->
+  <path d="
+    M 192 160
+    C 218 150 248 144 278 142
+    C 308 140 338 144 365 152
+    C 385 158 400 167 416 178
+    L 413 185
+    C 397 174 381 165 360 159
+    C 332 151 302 148 272 150
+    C 242 152 212 158 188 170 Z
+  " fill="#1c4a2c"/>
+
+  <!-- Upper-right branch (steeper upward angle) -->
+  <path d="
+    M 205 142
+    C 226 130 252 120 274 114
+    C 295 109 316 110 334 118
+    C 350 126 362 138 372 152
+    L 367 157
+    C 357 144 345 132 328 125
+    C 310 117 288 116 267 122
+    C 244 128 218 140 200 154 Z
+  " fill="#1c4a2c"/>
+
+  <!-- Far-right upward branch -->
+  <path d="
+    M 350 142
+    C 362 128 376 118 390 112
+    C 402 107 412 108 420 114
+    L 418 120
+    C 410 115 400 115 390 119
+    C 376 126 362 136 350 150 Z
+  " fill="#1c4a2c"/>
+
+  <!-- Mid-right descending branch -->
+  <path d="
+    M 232 178
+    C 258 172 285 170 312 172
+    C 338 174 362 182 382 194
+    C 398 204 410 216 418 230
+    L 414 235
+    C 406 221 394 209 378 199
+    C 357 187 332 179 307 177
+    C 280 175 253 177 228 184 Z
+  " fill="#1c4a2c"/>
+
+  <!-- Lower-right sweeping branch -->
+  <path d="
+    M 215 240
+    C 242 234 272 232 302 234
+    C 328 236 352 244 374 256
+    C 392 266 406 280 414 296
+    L 410 300
+    C 402 284 388 270 369 260
+    C 346 248 322 240 296 238
+    C 266 236 236 238 210 246 Z
+  " fill="#1c4a2c"/>
+
+  <!-- ══════════════════════════════════════════
+       LEAVES  (dark/mid green ellipses)
+       ══════════════════════════════════════════ -->
+  <g fill="#3e6e36">
+    <!-- Near top of circle, trunk tip -->
+    <ellipse cx="200" cy="90"  rx="14" ry="7"  transform="rotate(-42 200 90)"/>
+    <ellipse cx="184" cy="100" rx="12" ry="6"  transform="rotate(-70 184 100)"/>
+    <ellipse cx="216" cy="83"  rx="13" ry="6"  transform="rotate(-18 216 83)"/>
+    <ellipse cx="232" cy="77"  rx="12" ry="6"  transform="rotate( 8 232 77)"/>
+    <ellipse cx="248" cy="72"  rx="11" ry="6"  transform="rotate( 3 248 72)"/>
+
+    <!-- Upper-right branch leaves -->
+    <ellipse cx="360" cy="138" rx="14" ry="7"  transform="rotate( 28 360 138)"/>
+    <ellipse cx="376" cy="124" rx="13" ry="6"  transform="rotate( 48 376 124)"/>
+    <ellipse cx="392" cy="114" rx="12" ry="6"  transform="rotate( 62 392 114)"/>
+    <ellipse cx="410" cy="109" rx="11" ry="6"  transform="rotate( 52 410 109)"/>
+
+    <!-- Far-right branch tip -->
+    <ellipse cx="416" cy="115" rx="11" ry="5"  transform="rotate( 40 416 115)"/>
+
+    <!-- Mid-right branch leaves -->
+    <ellipse cx="310" cy="130" rx="13" ry="6"  transform="rotate( -6 310 130)"/>
+    <ellipse cx="328" cy="118" rx="12" ry="6"  transform="rotate( 16 328 118)"/>
+
+    <!-- Right-side leaves -->
+    <ellipse cx="410" cy="222" rx="14" ry="7"  transform="rotate( 38 410 222)"/>
+    <ellipse cx="422" cy="234" rx="12" ry="6"  transform="rotate( 58 422 234)"/>
+    <ellipse cx="418" cy="208" rx="11" ry="6"  transform="rotate( 22 418 208)"/>
+
+    <!-- Lower-right leaves -->
+    <ellipse cx="406" cy="290" rx="14" ry="7"  transform="rotate( 52 406 290)"/>
+    <ellipse cx="418" cy="302" rx="12" ry="6"  transform="rotate( 72 418 302)"/>
+
+    <!-- Left side leaves (near trunk) -->
+    <ellipse cx="148" cy="148" rx="13" ry="6"  transform="rotate(-75 148 148)"/>
+    <ellipse cx="134" cy="162" rx="12" ry="6"  transform="rotate(-60 134 162)"/>
+    <ellipse cx="122" cy="178" rx="11" ry="6"  transform="rotate(-45 122 178)"/>
+  </g>
+
+  <!-- ══════════════════════════════════════════
+       PERSON MEDALLIONS  (6 gold circles)
+       ══════════════════════════════════════════ -->
+
+  <!-- Medallion 1 – left, near trunk -->
+  <circle cx="157" cy="208" r="17" fill="url(#medGold)" stroke="#7a5508" stroke-width="1.5"/>
+  <circle cx="157" cy="202" r="5.5" fill="#1c4a2c"/>
+  <path d="M 145 222 Q 145 213 157 213 Q 169 213 169 222 Z" fill="#1c4a2c"/>
+
+  <!-- Medallion 2 – mid-left branch -->
+  <circle cx="228" cy="164" r="17" fill="url(#medGold)" stroke="#7a5508" stroke-width="1.5"/>
+  <circle cx="228" cy="158" r="5.5" fill="#1c4a2c"/>
+  <path d="M 216 178 Q 216 169 228 169 Q 240 169 240 178 Z" fill="#1c4a2c"/>
+
+  <!-- Medallion 3 – upper centre -->
+  <circle cx="295" cy="148" r="17" fill="url(#medGold)" stroke="#7a5508" stroke-width="1.5"/>
+  <circle cx="295" cy="142" r="5.5" fill="#1c4a2c"/>
+  <path d="M 283 162 Q 283 153 295 153 Q 307 153 307 162 Z" fill="#1c4a2c"/>
+
+  <!-- Medallion 4 – upper-right -->
+  <circle cx="360" cy="163" r="17" fill="url(#medGold)" stroke="#7a5508" stroke-width="1.5"/>
+  <circle cx="360" cy="157" r="5.5" fill="#1c4a2c"/>
+  <path d="M 348 177 Q 348 168 360 168 Q 372 168 372 177 Z" fill="#1c4a2c"/>
+
+  <!-- Medallion 5 – right of centre -->
+  <circle cx="388" cy="202" r="17" fill="url(#medGold)" stroke="#7a5508" stroke-width="1.5"/>
+  <circle cx="388" cy="196" r="5.5" fill="#1c4a2c"/>
+  <path d="M 376 216 Q 376 207 388 207 Q 400 207 400 216 Z" fill="#1c4a2c"/>
+
+  <!-- Medallion 6 – lower-right -->
+  <circle cx="400" cy="262" r="17" fill="url(#medGold)" stroke="#7a5508" stroke-width="1.5"/>
+  <circle cx="400" cy="256" r="5.5" fill="#1c4a2c"/>
+  <path d="M 388 276 Q 388 267 400 267 Q 412 267 412 276 Z" fill="#1c4a2c"/>
+
+  <!-- ══════════════════════════════════════════
+       ARABIC CALLIGRAPHY  "آل"
+       ══════════════════════════════════════════ -->
+  <text
+    x="142" y="340"
+    font-family="'Noto Naskh Arabic','Arabic Typesetting','Traditional Arabic',serif"
+    font-size="88"
+    font-weight="600"
+    fill="#1c4a2c"
+    text-anchor="middle"
+    direction="rtl">آل</text>
+
+  <!-- ══════════════════════════════════════════
+       MOSQUE DOME  +  OPEN BOOK
+       ══════════════════════════════════════════ -->
+
+  <!-- Open book — left page -->
+  <path d="M 188 364 L 244 348 L 244 378 L 190 380 C 184 376 182 369 188 364 Z" fill="#1c4a2c"/>
+  <!-- Open book — right page -->
+  <path d="M 312 364 L 256 348 L 256 378 L 310 380 C 316 376 318 369 312 364 Z" fill="#1c4a2c"/>
+  <!-- Spine -->
+  <rect x="242" y="347" width="16" height="33" rx="2" fill="#1c4a2c"/>
+
+  <!-- Mosque arcade / lower wall -->
+  <rect x="218" y="337" width="64" height="14" rx="2" fill="#1c4a2c"/>
+  <!-- Arched windows -->
+  <path d="M 228 337 Q 232 328 236 337" fill="#1c4a2c"/>
+  <path d="M 241 337 Q 245 328 249 337" fill="#1c4a2c"/>
+  <path d="M 255 337 Q 259 328 263 337" fill="#1c4a2c"/>
+  <path d="M 268 337 Q 272 328 276 337" fill="#1c4a2c"/>
+
+  <!-- Main dome hemisphere -->
+  <path d="M 212 318 C 212 298 229 284 250 284 C 271 284 288 298 288 318 Z" fill="#1c4a2c"/>
+  <ellipse cx="250" cy="318" rx="38" ry="10" fill="#1c4a2c"/>
+
+  <!-- Minaret -->
+  <rect x="246" y="274" width="8" height="13" fill="#1c4a2c"/>
+  <!-- Minaret tip -->
+  <polygon points="250,260 244,275 256,275" fill="#1c4a2c"/>
+  <!-- Small crescent -->
+  <path d="M 248 258 C 245 253 250 248 255 253 C 252 250 247 252 248 258 Z" fill="#c9a840"/>
+
+  <!-- ══════════════════════════════════════════
+       SPARKLE STARS
+       ══════════════════════════════════════════ -->
+  <!-- Left star -->
+  <path d="M 216 295 L 218.5 287.5 L 221 295 L 228.5 297.5 L 221 300 L 218.5 307.5 L 216 300 L 208.5 297.5 Z"
+        fill="#c9a840" opacity="0.9"/>
+  <!-- Right star -->
+  <path d="M 284 291 L 286.5 283.5 L 289 291 L 296.5 293.5 L 289 296 L 286.5 303.5 L 284 296 L 276.5 293.5 Z"
+        fill="#c9a840" opacity="0.9"/>
+
+  <!-- ══════════════════════════════════════════
+       BRAND TEXT
+       ══════════════════════════════════════════ -->
+  <text
+    x="250" y="449"
+    font-family="Georgia,'Times New Roman',serif"
+    font-size="37"
+    font-weight="bold"
+    fill="#1c4a2c"
+    text-anchor="middle"
+    letter-spacing="0.5">Bazm-e-Saadaaat</text>
+
+  <text
+    x="250" y="474"
+    font-family="Georgia,'Times New Roman',serif"
+    font-size="11"
+    fill="#c9a840"
+    text-anchor="middle"
+    letter-spacing="3.8">— ROOTS. LEGACY. LIGHT. —</text>
+
+  <!-- ══════════════════════════════════════════
+       DECORATIVE DIVIDER
+       ══════════════════════════════════════════ -->
+  <!-- Left sweep -->
+  <path d="M 110 498 C 148 490 190 487 228 492"
+        stroke="#c9a840" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+  <!-- Right sweep -->
+  <path d="M 390 498 C 352 490 310 487 272 492"
+        stroke="#c9a840" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+  <!-- Centre ornament -->
+  <ellipse cx="250" cy="494" rx="4" ry="4" fill="none" stroke="#c9a840" stroke-width="1.2"/>
+  <path d="M 250 489 L 250 499" stroke="#c9a840" stroke-width="1" stroke-linecap="round"/>
+  <path d="M 245 494 L 255 494" stroke="#c9a840" stroke-width="1" stroke-linecap="round"/>
+  <!-- Tiny leaves flanking centre -->
+  <ellipse cx="234" cy="491" rx="6" ry="3" fill="none" stroke="#c9a840" stroke-width="1"
+           transform="rotate(-30 234 491)"/>
+  <ellipse cx="266" cy="491" rx="6" ry="3" fill="none" stroke="#c9a840" stroke-width="1"
+           transform="rotate( 30 266 491)"/>
+</svg>

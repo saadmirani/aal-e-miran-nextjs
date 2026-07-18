@@ -7,6 +7,7 @@ import { useTreeRendering } from '@/hooks/useTreeRendering';
 import { DetailPopup } from '@/components/DetailPopup';
 import { useAuth } from '@/context/AuthContext';
 import { fetchAllFamilies, fetchFamilyData, deletePerson, removePersonFromFamily } from '@/app/admin/family-management/utils/api';
+import ReactMarkdown from 'react-markdown';
 import './shajra.css';
 
 const LazyAddPersonForm = dynamic(() => import('@/app/admin/family-management/components/AddPersonForm'), { ssr: false });
@@ -28,6 +29,9 @@ export default function ShajraPage() {
    const [editMode, setEditMode] = useState(false);
    const [stats, setStats] = useState(null);
    const [detachedCount, setDetachedCount] = useState(0);
+   const [showFamilyInfo, setShowFamilyInfo] = useState(false);
+   const [familyInfoContent, setFamilyInfoContent] = useState(null);
+   const [familyInfoLoading, setFamilyInfoLoading] = useState(false);
    const [treeCrudState, setTreeCrudState] = useState(null);
    const [treeCrudData, setTreeCrudData] = useState({ loading: false, allFamilies: [], familyData: null, person: null, error: '' });
    const containerRef = useRef(null);
@@ -141,6 +145,27 @@ export default function ShajraPage() {
    const handleNodeClick = useCallback((d, x, y) => {
       setPopupData(d.data);
    }, []);
+
+   // Reset cached info when the family changes
+   useEffect(() => {
+      setFamilyInfoContent(null);
+      setShowFamilyInfo(false);
+   }, [qasba]);
+
+   const handleShowFamilyInfo = useCallback(async () => {
+      setShowFamilyInfo(true);
+      if (familyInfoContent !== null) return; // already loaded
+      setFamilyInfoLoading(true);
+      try {
+         const res = await fetch(`/api/family-info/${qasba}`);
+         const data = await res.json();
+         setFamilyInfoContent(res.ok ? data : { error: data.error });
+      } catch {
+         setFamilyInfoContent({ error: 'Failed to load family information.' });
+      } finally {
+         setFamilyInfoLoading(false);
+      }
+   }, [qasba, familyInfoContent]);
 
    const handleSetSection = useCallback((newQasba, focusId) => {
       const focusQuery = focusId ? `?focus=${encodeURIComponent(focusId)}` : '';
@@ -549,6 +574,15 @@ export default function ShajraPage() {
                </div>
             )}
 
+            <button
+               type="button"
+               className="tree-info-btn"
+               title="Family Information"
+               onClick={(e) => { e.stopPropagation(); handleShowFamilyInfo(); }}
+            >
+               <i className="fas fa-circle-info"></i>
+            </button>
+
             {!authLoading && isAdmin && (
                <button
                   type="button"
@@ -710,6 +744,33 @@ export default function ShajraPage() {
                <div className="tree-editor-panel tree-editor-panel--compact" onClick={(e) => e.stopPropagation()}>
                   <button className="tree-editor-close" onClick={closeTreeCrud}>&times;</button>
                   <div className="tree-editor-error">{treeCrudData.error}</div>
+               </div>
+            </div>
+         )}
+
+         {/* Family Info Panel */}
+         {showFamilyInfo && (
+            <div className="family-info-overlay" onClick={() => setShowFamilyInfo(false)}>
+               <div className="family-info-panel" onClick={(e) => e.stopPropagation()}>
+                  <div className="family-info-header">
+                     <h2><i className="fas fa-circle-info" style={{ marginRight: '8px', color: '#1e3a8a' }}></i>{familyInfo?.name || 'Family Information'}</h2>
+                     <button className="family-info-close" onClick={() => setShowFamilyInfo(false)}>&times;</button>
+                  </div>
+                  <div className="family-info-body">
+                     {familyInfoLoading ? (
+                        <div className="family-info-loading">
+                           <i className="fas fa-spinner fa-spin"></i>
+                           Loading information...
+                        </div>
+                     ) : familyInfoContent?.error ? (
+                        <div className="family-info-empty">
+                           <i className="fas fa-file-circle-question" style={{ display: 'block', fontSize: '28px', marginBottom: '10px', opacity: 0.4 }}></i>
+                           No information has been written for this family yet.
+                        </div>
+                     ) : familyInfoContent?.content ? (
+                        <ReactMarkdown>{familyInfoContent.content}</ReactMarkdown>
+                     ) : null}
+                  </div>
                </div>
             </div>
          )}

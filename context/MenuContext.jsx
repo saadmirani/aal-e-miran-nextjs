@@ -1,17 +1,24 @@
 'use client';
 
-import { createContext, useContext, useState } from 'react';
+import { createContext, useContext, useState, useCallback } from 'react';
 
 const MenuContext = createContext();
 
 export function MenuProvider({ children }) {
    const [isMenuOpen, setIsMenuOpen] = useState(false);
+   const [shajraExpanded, setShajraExpanded] = useState(false);
 
-   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
-   const closeMenu = () => setIsMenuOpen(false);
+   const toggleMenu = () => setIsMenuOpen(prev => !prev);
+   const openMenu = useCallback(() => setIsMenuOpen(true), []);
+   const closeMenu = useCallback(() => setIsMenuOpen(false), []);
+   const openShajraMenu = useCallback(() => {
+      setIsMenuOpen(true);
+      setShajraExpanded(true);
+   }, []);
+   const clearShajraExpanded = useCallback(() => setShajraExpanded(false), []);
 
    return (
-      <MenuContext.Provider value={{ isMenuOpen, toggleMenu, closeMenu }}>
+      <MenuContext.Provider value={{ isMenuOpen, toggleMenu, openMenu, closeMenu, shajraExpanded, openShajraMenu, clearShajraExpanded }}>
          {children}
       </MenuContext.Provider>
    );

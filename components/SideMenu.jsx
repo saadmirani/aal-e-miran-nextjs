@@ -12,7 +12,7 @@ import './SideMenu.css';
 export default function SideMenu() {
    const pathname = usePathname();
    const [showSilsilas, setShowSilsilas] = useState(false);
-   const { isMenuOpen, closeMenu } = useMenu();
+   const { isMenuOpen, closeMenu, shajraExpanded, clearShajraExpanded } = useMenu();
    const { isAdmin, login, logout } = useAuth();
    const [mounted, setMounted] = useState(false);
    const [silsilaItems, setSilsilaItems] = useState([]);
@@ -54,6 +54,14 @@ export default function SideMenu() {
          setShowSilsilas(true);
       }
    }, [pathname]);
+
+   // React to external trigger (e.g. from the home page feature cards).
+   useEffect(() => {
+      if (shajraExpanded) {
+         setShowSilsilas(true);
+         clearShajraExpanded();
+      }
+   }, [shajraExpanded, clearShajraExpanded]);
 
    // Install a global fetch interceptor to auto-trigger login modal on 401 auth errors.
    useEffect(() => {
@@ -209,7 +217,6 @@ export default function SideMenu() {
                         <Link key={item.id} href={`/shajra/${item.id}`}>
                            <button
                               className={`submenu-item ${activeSection === item.id ? 'active' : ''}`}
-                              onClick={() => setShowSilsilas(false)}
                            >
                               <span className="icon"><i className="fas fa-sitemap"></i></span>
                               <span className="label">{item.label}</span>
@@ -248,7 +255,7 @@ export default function SideMenu() {
                onClick={() => { setShowSilsilas(false); }}
             >
                <span className="icon"><i className="fas fa-mosque"></i></span>
-               <span className="label">Graveyards</span>
+               <span className="label">Sacred Sites</span>
             </button>
 
             {/* Contact */}

@@ -24,6 +24,11 @@ const authMiddleware = async (request) => {
       return NextResponse.next();
    }
 
+   // Family info (markdown content) is public
+   if (pathname.startsWith('/api/family-info/')) {
+      return NextResponse.next();
+   }
+
    // Family tree admin endpoints (persons, families, etc.)
    if (pathname.startsWith('/api/admin/')) {
       return NextResponse.next();
