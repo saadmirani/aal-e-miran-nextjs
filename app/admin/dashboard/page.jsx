@@ -11,6 +11,7 @@ import ContributorsModal from '@/app/admin/components/ContributorsModal';
 import AdminsModal from '@/app/admin/components/AdminsModal';
 import ChangePasswordModal from '@/app/admin/components/ChangePasswordModal';
 import KhanqahManagementModal from '@/app/admin/components/KhanqahManagementModal';
+import GlobalDataTab from '@/app/admin/components/GlobalDataTab';
 import './dashboard.css';
 
 export default function AdminDashboard() {
@@ -197,6 +198,12 @@ export default function AdminDashboard() {
                   >
                      <i className="fas fa-tree"></i> Manage Families
                   </button>
+                  <button
+                     className={`tab ${activeTab === 'global-data' ? 'active' : ''}`}
+                     onClick={() => setActiveTab('global-data')}
+                  >
+                     <i className="fas fa-database"></i> Manage Global Data
+                  </button>
                   {userRole === 'admin' && (
                      <>
                         <button
@@ -357,6 +364,9 @@ export default function AdminDashboard() {
                            </div>
                         </section>
                      )}
+
+                     {/* Global Data Tab */}
+                     {activeTab === 'global-data' && <GlobalDataTab />}
 
                   </div>{/* end dashboard-content */}
 

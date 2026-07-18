@@ -5,7 +5,7 @@ import AddPersonForm from './components/AddPersonForm';
 import AddFamilyForm from './components/AddFamilyForm';
 import EditPersonModal from './components/EditPersonModal';
 import ImportChainTab from './components/ImportChainTab';
-import { fetchAllFamilies, fetchFamilyData, removePersonFromFamily, deleteFamily, fetchPersonDetails, deleteMarriage, deletePerson, addPersonToFamily, searchPersons } from './utils/api';
+import { fetchAllFamilies, fetchFamilyData, removePersonFromFamily, deleteFamily, updateFamily, fetchPersonDetails, deleteMarriage, deletePerson } from './utils/api';
 
 export default function FamilyManagementPage() {
    const [families, setFamilies] = useState([]);
@@ -18,11 +18,10 @@ export default function FamilyManagementPage() {
    const [showAddFamilyModal, setShowAddFamilyModal] = useState(false);
    const [editingPerson, setEditingPerson] = useState(null);
    const [showDeleteFamilyModal, setShowDeleteFamilyModal] = useState(false);
+   const [showEditFamilyModal, setShowEditFamilyModal] = useState(false);
+   const [editFamilyForm, setEditFamilyForm] = useState({ name: '', qasba: '', region: '', description: '' });
    const [unknownSpouseDetails, setUnknownSpouseDetails] = useState({});
-   const [globalSearchQuery, setGlobalSearchQuery] = useState('');
-   const [globalSearchResults, setGlobalSearchResults] = useState([]);
-   const [globalSearching, setGlobalSearching] = useState(false);
-   const [globalMutatingId, setGlobalMutatingId] = useState(null);
+
 
    // Use ref to track latest selectedFamily for callbacks
    const selectedFamilyRef = useRef(null);
@@ -107,6 +106,41 @@ export default function FamilyManagementPage() {
          }
 
          alert('Failed to remove person from this family: ' + error.message);
+      } finally {
+         setLoading(false);
+      }
+   };
+
+   const handleOpenEditFamily = () => {
+      setEditFamilyForm({
+         name: selectedFamily.name || '',
+         qasba: selectedFamily.qasba || '',
+         region: selectedFamily.region || '',
+         description: selectedFamily.description || '',
+      });
+      setShowEditFamilyModal(true);
+   };
+
+   const handleUpdateFamily = async () => {
+      if (!selectedFamily?.id) return;
+      const { name, qasba, region, description } = editFamilyForm;
+      if (!name.trim()) { alert('Family name is required.'); return; }
+      if (!qasba.trim()) { alert('Identifier (qasba) is required.'); return; }
+      try {
+         setLoading(true);
+         await updateFamily(selectedFamily.id, { name: name.trim(), qasba: qasba.trim(), region: region.trim(), description: description.trim() });
+         setShowEditFamilyModal(false);
+         // Reload families list and refresh selected family with new qasba
+         const updated = await fetchAllFamilies();
+         setFamilies(updated);
+         const refreshed = updated.find(f => f.id === selectedFamily.id);
+         if (refreshed) {
+            setSelectedFamily(refreshed);
+            const data = await fetchFamilyData(refreshed.qasba);
+            setFamilyData(data);
+         }
+      } catch (error) {
+         alert('Failed to update family: ' + error.message);
       } finally {
          setLoading(false);
       }
@@ -290,125 +324,6 @@ export default function FamilyManagementPage() {
 
    const totalFilteredUnknownSpouses = filteredUnknownSpouseSections.primary.length + filteredUnknownSpouseSections.additional.length;
 
-   const handleGlobalSearch = async () => {
-      const query = globalSearchQuery.trim();
-      if (!query) {
-         setGlobalSearchResults([]);
-         return;
-      }
-
-      try {
-         setGlobalSearching(true);
-         const baseResults = await searchPersons(query);
-         const normalizedBaseRows = (baseResults || []).filter((row) => {
-            const id = String(row?.id || '').trim();
-            return id && id !== '=' && id !== 'undefined' && id !== 'null';
-         });
-         const detailRows = await Promise.all(
-            normalizedBaseRows.map(async (row) => {
-               try {
-                  const detail = await fetchPersonDetails(row.id);
-                  const person = detail?.person || {};
-                  return {
-                     id: row.id,
-                     uniqueId: person.uniqueId || row.uniqueId || null,
-                     name: person.name || row.name || 'Unknown',
-                     gender: person.gender || row.gender || 'unknown',
-                     alive: typeof person.alive === 'boolean' ? person.alive : row.alive,
-                     fatherId: person.fatherId || null,
-                     motherId: person.motherId || null,
-                     dateOfBirth: person.dateOfBirth || null,
-                     dateOfDeath: person.dateOfDeath || null,
-                     about: person.about || null,
-                     families: Array.isArray(person.families) ? person.families : [],
-                     spouses: Array.isArray(detail?.spouses) ? detail.spouses : [],
-                     children: Array.isArray(detail?.children) ? detail.children : []
-                  };
-               } catch {
-                  return {
-                     id: row.id,
-                     uniqueId: row.uniqueId || null,
-                     name: row.name || 'Unknown',
-                     gender: row.gender || 'unknown',
-                     alive: row.alive,
-                     fatherId: null,
-                     motherId: null,
-                     dateOfBirth: row.dateOfBirth || null,
-                     dateOfDeath: row.dateOfDeath || null,
-                     about: null,
-                     families: row.familyId ? [{ id: row.familyId, name: row.familyName || null, qasba: null }] : [],
-                     spouses: [],
-                     children: []
-                  };
-               }
-            })
-         );
-         setGlobalSearchResults(detailRows);
-      } catch (error) {
-         console.error('Global search failed:', error);
-         alert('Failed to search global data: ' + error.message);
-      } finally {
-         setGlobalSearching(false);
-      }
-   };
-
-   const handleGlobalDeletePerson = async (personId, personName) => {
-      if (!window.confirm(`Permanently delete "${personName}" from database? This removes family links and marriages.`)) return;
-      try {
-         setGlobalMutatingId(personId);
-         await deletePerson(personId);
-         await handleGlobalSearch();
-         await refreshFamilyData();
-      } catch (error) {
-         alert('Failed to delete person: ' + error.message);
-      } finally {
-         setGlobalMutatingId(null);
-      }
-   };
-
-   const handleGlobalUnlinkFamily = async (personId, familyId) => {
-      try {
-         setGlobalMutatingId(personId);
-         await removePersonFromFamily(familyId, personId);
-         setGlobalSearchResults(prev => prev.map(p =>
-            p.id === personId
-               ? { ...p, families: (p.families || []).filter(f => f.id !== familyId) }
-               : p
-         ));
-         await refreshFamilyData();
-      } catch (error) {
-         alert('Failed to unlink family: ' + error.message);
-      } finally {
-         setGlobalMutatingId(null);
-      }
-   };
-
-   const handleGlobalLinkFamily = async (personId, familyId) => {
-      if (!familyId) return;
-      try {
-         setGlobalMutatingId(personId);
-         await addPersonToFamily(familyId, personId);
-         const familyMeta = families.find(f => String(f.id) === String(familyId));
-         setGlobalSearchResults(prev => prev.map(p => {
-            if (p.id !== personId) return p;
-            const exists = (p.families || []).some(f => String(f.id) === String(familyId));
-            if (exists) return p;
-            return {
-               ...p,
-               families: [
-                  ...(p.families || []),
-                  { id: familyMeta?.id || familyId, name: familyMeta?.name || null, qasba: familyMeta?.qasba || null }
-               ]
-            };
-         }));
-         await refreshFamilyData();
-      } catch (error) {
-         alert('Failed to link family: ' + error.message);
-      } finally {
-         setGlobalMutatingId(null);
-      }
-   };
-
    return (
       <div style={styles.container}>
          <h1><i className="fa-solid fa-book" style={{ marginRight: '10px' }}></i>Family Tree Management System</h1>
@@ -505,15 +420,6 @@ export default function FamilyManagementPage() {
                            >
                               <i className="fa-solid fa-code-branch" style={{ marginRight: '6px' }}></i>Import Chain
                            </button>
-                           <button
-                              onClick={() => setActiveTab('manage-global')}
-                              style={{
-                                 ...styles.tab,
-                                 ...(activeTab === 'manage-global' ? styles.tabActive : {})
-                              }}
-                           >
-                              <i className="fa-solid fa-database" style={{ marginRight: '6px' }}></i>Manage Global Data
-                           </button>
                         </div>
                      </div>
 
@@ -554,6 +460,14 @@ export default function FamilyManagementPage() {
                               <p><strong>Marriages:</strong> {familyData.marriages.length}</p>
                               <p><strong>Last Modified:</strong> {new Date(selectedFamily.lastModified).toLocaleDateString()}</p>
                               <div style={styles.dangerZone}>
+                                 <button
+                                    style={styles.editFamilyBtn}
+                                    onClick={handleOpenEditFamily}
+                                    disabled={loading}
+                                 >
+                                    <i className="fa-solid fa-pen" style={{ marginRight: '6px' }}></i>
+                                    Edit Family Details
+                                 </button>
                                  <button
                                     style={styles.deleteFamilyBtn}
                                     onClick={() => setShowDeleteFamilyModal(true)}
@@ -799,109 +713,6 @@ export default function FamilyManagementPage() {
                         </div>
                      )}
 
-                     {activeTab === 'manage-global' && (
-                        <div style={styles.tabContent}>
-                           <h3>Global Person Master Management</h3>
-                           <p style={styles.subtitle}>Search any person across database, inspect full details, manage family links, and permanently delete records.</p>
-
-                           <div style={styles.searchBox}>
-                              <input
-                                 type="text"
-                                 placeholder="Search person name globally..."
-                                 value={globalSearchQuery}
-                                 onChange={(e) => setGlobalSearchQuery(e.target.value)}
-                                 onKeyDown={(e) => {
-                                    if (e.key === 'Enter') {
-                                       e.preventDefault();
-                                       handleGlobalSearch();
-                                    }
-                                 }}
-                                 style={styles.searchInput}
-                              />
-                              <button
-                                 onClick={handleGlobalSearch}
-                                 disabled={globalSearching}
-                                 style={styles.editBtn}
-                              >
-                                 {globalSearching ? 'Searching...' : 'Search'}
-                              </button>
-                           </div>
-
-                           {globalSearchResults.length === 0 ? (
-                              <div style={styles.empty}>No global results yet. Search a name to begin.</div>
-                           ) : (
-                              <div style={{ ...styles.infoBox, padding: '12px' }}>
-                                 {globalSearchResults.map((person) => {
-                                    const linkedFamilyIds = new Set((person.families || []).map(f => String(f.id)));
-                                    const availableFamilies = families.filter(f => !linkedFamilyIds.has(String(f.id)));
-                                    return (
-                                       <div key={person.id} style={styles.globalCard}>
-                                          <div style={styles.globalCardHead}>
-                                             <div>
-                                                <strong>{person.name}</strong>
-                                                <div style={styles.globalSubline}>ID: {person.uniqueId || person.id}</div>
-                                                <div style={styles.globalSubline}>Gender: {person.gender || 'unknown'} | Status: {person.alive ? 'Living' : 'Deceased'}</div>
-                                             </div>
-                                             <button
-                                                onClick={() => handleGlobalDeletePerson(person.id, person.name)}
-                                                disabled={globalMutatingId === person.id}
-                                                style={styles.deleteBtn}
-                                             >
-                                                {globalMutatingId === person.id ? 'Working...' : 'Delete Permanently'}
-                                             </button>
-                                          </div>
-
-                                          {person.about && <div style={styles.globalSubline}><strong>About:</strong> {person.about}</div>}
-                                          <div style={styles.globalSubline}><strong>Father ID:</strong> {person.fatherId || '—'} | <strong>Mother ID:</strong> {person.motherId || '—'}</div>
-                                          <div style={styles.globalSubline}><strong>Spouses:</strong> {(person.spouses || []).length} | <strong>Children:</strong> {(person.children || []).length}</div>
-
-                                          <div style={{ marginTop: '8px' }}>
-                                             <strong>Family Links:</strong>
-                                             {(person.families || []).length === 0 ? (
-                                                <div style={styles.globalSubline}>No family linked</div>
-                                             ) : (
-                                                <div style={styles.globalFamilyList}>
-                                                   {(person.families || []).map((f) => (
-                                                      <div key={`${person.id}-${f.id}`} style={styles.globalFamilyItem}>
-                                                         <span>{f.name || f.qasba || f.id}</span>
-                                                         <button
-                                                            onClick={() => handleGlobalUnlinkFamily(person.id, f.id)}
-                                                            disabled={globalMutatingId === person.id}
-                                                            style={styles.unlinkBtn}
-                                                         >
-                                                            Remove Link
-                                                         </button>
-                                                      </div>
-                                                   ))}
-                                                </div>
-                                             )}
-                                          </div>
-
-                                          <div style={styles.globalAddFamilyRow}>
-                                             <select
-                                                defaultValue=""
-                                                style={styles.familySelect}
-                                                onChange={(e) => {
-                                                   const value = e.target.value;
-                                                   if (!value) return;
-                                                   handleGlobalLinkFamily(person.id, value);
-                                                   e.target.value = '';
-                                                }}
-                                                disabled={globalMutatingId === person.id || availableFamilies.length === 0}
-                                             >
-                                                <option value="">Link to another family...</option>
-                                                {availableFamilies.map(f => (
-                                                   <option key={`add-link-${person.id}-${f.id}`} value={f.id}>{f.name}{f.region ? ` (${f.region})` : ''}</option>
-                                                ))}
-                                             </select>
-                                          </div>
-                                       </div>
-                                    );
-                                 })}
-                              </div>
-                           )}
-                        </div>
-                     )}
                   </>
                )}
             </div>
@@ -942,6 +753,73 @@ export default function FamilyManagementPage() {
                onFamilyCreated={() => loadFamilies()}
                onClose={() => setEditingPerson(null)}
             />
+         )}
+
+         {/* EDIT FAMILY MODAL */}
+         {showEditFamilyModal && selectedFamily && (
+            <div style={styles.modal}>
+               <div style={styles.modalContent}>
+                  <button style={styles.closeBtn} onClick={() => setShowEditFamilyModal(false)}>✕</button>
+                  <h3 style={{ marginTop: 0 }}>
+                     <i className="fa-solid fa-pen" style={{ marginRight: '8px' }}></i>
+                     Edit Family Details
+                  </h3>
+                  <div style={styles.editFormGroup}>
+                     <label style={styles.editLabel}>Display Name *</label>
+                     <input
+                        type="text"
+                        value={editFamilyForm.name}
+                        onChange={(e) => setEditFamilyForm(p => ({ ...p, name: e.target.value }))}
+                        style={styles.editInput}
+                        placeholder="e.g. Aal-e-Wajid Ali"
+                     />
+                  </div>
+                  <div style={styles.editFormGroup}>
+                     <label style={styles.editLabel}>Identifier (qasba) *</label>
+                     <input
+                        type="text"
+                        value={editFamilyForm.qasba}
+                        onChange={(e) => setEditFamilyForm(p => ({ ...p, qasba: e.target.value }))}
+                        style={styles.editInput}
+                        placeholder="e.g. miran-bigha"
+                     />
+                     <small style={{ color: '#b45309', fontSize: '11px', marginTop: '3px', display: 'block' }}>
+                        ⚠️ Changing this breaks the family tree URL and data lookups. Update with care.
+                     </small>
+                  </div>
+                  <div style={styles.editFormGroup}>
+                     <label style={styles.editLabel}>Region</label>
+                     <input
+                        type="text"
+                        value={editFamilyForm.region}
+                        onChange={(e) => setEditFamilyForm(p => ({ ...p, region: e.target.value }))}
+                        style={styles.editInput}
+                        placeholder="e.g. Bihar, India"
+                     />
+                  </div>
+                  <div style={styles.editFormGroup}>
+                     <label style={styles.editLabel}>Description</label>
+                     <textarea
+                        value={editFamilyForm.description}
+                        onChange={(e) => setEditFamilyForm(p => ({ ...p, description: e.target.value }))}
+                        style={{ ...styles.editInput, minHeight: '80px', resize: 'vertical' }}
+                        placeholder="Short description of this family branch..."
+                     />
+                  </div>
+                  <div style={styles.deleteModalActions}>
+                     <button style={styles.cancelDangerBtn} onClick={() => setShowEditFamilyModal(false)} disabled={loading}>
+                        Cancel
+                     </button>
+                     <button
+                        onClick={handleUpdateFamily}
+                        disabled={loading}
+                        style={{ ...styles.confirmDangerBtn, background: '#2563eb' }}
+                     >
+                        {loading ? 'Saving...' : 'Save Changes'}
+                     </button>
+                  </div>
+               </div>
+            </div>
          )}
 
          {/* DELETE FAMILY MODAL */}
@@ -1112,6 +990,35 @@ const styles = {
    dangerHint: {
       color: '#6c757d',
       fontSize: '12px'
+   },
+   editFamilyBtn: {
+      width: 'fit-content',
+      padding: '8px 12px',
+      border: 'none',
+      borderRadius: '4px',
+      background: '#2563eb',
+      color: 'white',
+      cursor: 'pointer',
+      fontSize: '13px',
+      fontWeight: '600'
+   },
+   editFormGroup: {
+      marginBottom: '14px'
+   },
+   editLabel: {
+      display: 'block',
+      fontSize: '13px',
+      fontWeight: '600',
+      color: '#374151',
+      marginBottom: '5px'
+   },
+   editInput: {
+      width: '100%',
+      padding: '9px 11px',
+      border: '1px solid #d1d5db',
+      borderRadius: '6px',
+      fontSize: '14px',
+      boxSizing: 'border-box'
    },
    searchBox: {
       display: 'flex',

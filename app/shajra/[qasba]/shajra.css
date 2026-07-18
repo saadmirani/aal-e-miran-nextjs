@@ -310,6 +310,35 @@
    color: #1f2937;
 }
 
+.family-info-body blockquote {
+   margin: 12px 0;
+   padding: 14px 18px;
+   background: linear-gradient(135deg, #fdf6e3 0%, #fef9ec 100%);
+   border-right: 4px solid #b45309;
+   border-left: none;
+   border-radius: 6px;
+   font-size: 1.1em;
+   line-height: 2;
+   text-align: right;
+   direction: rtl;
+   color: #1c1917;
+   font-style: normal;
+}
+
+.family-info-body blockquote p {
+   margin: 0;
+   padding: 0;
+   line-height: 2;
+   color: #1c1917;
+}
+
+.family-info-body hr {
+   border: none;
+   border-top: 1px dashed #d1a827;
+   margin: 12px 0;
+   opacity: 0.6;
+}
+
 .family-info-body a {
    color: #2563eb;
    text-decoration: underline;
