@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import ComingSoonBanner from '@/components/ComingSoonBanner';
 import './khanqah.css';
 
 export default function KhanqahListPage() {
@@ -42,6 +43,8 @@ export default function KhanqahListPage() {
             <h1>Fehrist-e-Khanqah</h1>
             <p>Directory of Khanqahs</p>
          </div>
+
+         <ComingSoonBanner section="Khanqahs" />
 
          <div className="khanqah-list-search">
             <input

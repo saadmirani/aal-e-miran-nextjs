@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import ComingSoonBanner from '@/components/ComingSoonBanner';
 import './view-all.css';
 
 export const dynamic = 'force-dynamic';
@@ -64,6 +65,7 @@ export default function ViewAllBiographies() {
          {/* Main Content */}
          <main className="view-all-main">
             <div className="view-all-wrapper">
+               <ComingSoonBanner section="Biographies" />
                {/* Search Bar */}
                <div className="search-section">
                   <input
