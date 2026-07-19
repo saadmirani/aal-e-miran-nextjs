@@ -2,6 +2,7 @@
 
 import './home.css';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 import GlobalSearchBox from '@/components/GlobalSearchBox';
 import { useMenu } from '@/context/MenuContext';
 
@@ -13,10 +14,20 @@ export default function Home() {
          {/* Hero Section */}
          <section className="hero">
             <div className="hero-content">
-               <h1>
-                  Aal-e-Soofiya Akraam |
-                  <span className="urdu-title"> آلِ صوفیاء کرام</span>
-               </h1>
+               <div className="hero-title-wrap">
+                  <Image
+                     src="/Logo.jpeg"
+                     alt="Bazm-e-Saadaat Logo"
+                     width={150}
+                     height={150}
+                     className="hero-logo"
+                     priority
+                  />
+                  <h1>
+                     Bazm-E-Saadaat |
+                     <span className="urdu-title"> بزمِ سادات</span>
+                  </h1>
+               </div>
                <p className="subtitle">Preserving the Legacy of Sufi Saints and Their Genealogy</p>
                <p className="tagline">Connecting generations through history, spirituality, and heritage</p>
             </div>
