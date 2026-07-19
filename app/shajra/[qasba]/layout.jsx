@@ -49,17 +49,11 @@ function extractDescription(content, maxLength = 160) {
       : firstParagraph;
 }
 
-// ---------------------------------------------------------------------------
-// generateStaticParams — pre-renders known families at build time.
-// New families added to the DB later still work via on-demand SSR
-// because dynamicParams = true (Next.js default). No redeployment needed.
-// ---------------------------------------------------------------------------
-export async function generateStaticParams() {
-   const dir = path.join(process.cwd(), 'content', 'family-info');
-   if (!fs.existsSync(dir)) return [];
-   const files = fs.readdirSync(dir).filter((f) => f.endsWith('.md'));
-   return files.map((f) => ({ qasba: f.replace('.md', '') }));
-}
+// Force server-side rendering on every request.
+// This prevents Next.js from trying to pre-render these pages at build time,
+// which would fail because page.jsx uses useSearchParams() (a client hook).
+// generateMetadata still runs server-side per request, so SEO tags work fine.
+export const dynamic = 'force-dynamic';
 
 // ---------------------------------------------------------------------------
 // generateMetadata — per-family SEO tags
