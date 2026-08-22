@@ -1,495 +1,415 @@
-'use client';
+﻿'use client';
 
-import { useMemo, useState } from 'react';
-import {
-   importFamilyChain,
-   previewFamilyChainImport,
-   searchPersonsInFamily
-} from '../utils/api';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import * as d3 from 'd3';
+import { importFamilyChain, previewFamilyChainImport } from '../utils/api';
 
-function TreeNode({ node }) {
-   if (!node) return null;
-   return (
-      <li style={styles.treeItem}>
-         <div style={styles.treeLabel}>
-            <strong>{node.name}</strong>
-            {node.generation ? <span style={styles.genBadge}>Gen {node.generation}</span> : null}
-            {node.spouseNames?.length > 0 ? (
-               <span style={styles.spouseInline}>Spouses: {node.spouseNames.join(', ')}</span>
-            ) : null}
-         </div>
-         {node.children?.length > 0 && (
-            <ul style={styles.treeList}>
-               {node.children.map((child) => (
-                  <TreeNode key={child.id} node={child} />
-               ))}
-            </ul>
-         )}
-      </li>
-   );
+
+/** Collect all dbId values in the tree (excluding virtual root). */
+function collectDbIds(node, ids = new Set()) {
+   if (!node || node.isVirtualRoot) return ids;
+   if (node.dbId != null) ids.add(String(node.dbId));
+   (node.children || []).forEach(child => collectDbIds(child, ids));
+   return ids;
 }
+
+/**
+ * Render the source family tree into the given SVG element.
+ * Matches the visual style of the live Shajra-e-Saadaat tree.
+ * Preserves zoom/pan state between re-renders via zoomTransformRef.
+ */
+function drawImportTree(treeData, selectedDbIds, onToggleBranch, svgElement, zoomTransformRef) {
+   const svg = d3.select(svgElement);
+   svg.selectAll('*').remove();
+
+   const root = d3.hierarchy(treeData);
+   root.sort((a, b) => {
+      const delta = (b.height || 0) - (a.height || 0);
+      if (delta !== 0) return delta;
+      return String(a.data?.name || '').localeCompare(String(b.data?.name || ''));
+   });
+
+   const treeLayout = d3.tree().nodeSize([240, 180]);
+   treeLayout(root);
+
+   const realNodes = root.descendants().filter(d => !d.data.isVirtualRoot);
+   const minX = d3.min(realNodes, d => d.x) ?? 0;
+   const maxX = d3.max(realNodes, d => d.x) ?? 0;
+
+   const containerWidth = svgElement.parentElement?.clientWidth || 900;
+   const containerHeight = svgElement.parentElement?.clientHeight || 560;
+   svg.attr('width', containerWidth).attr('height', containerHeight);
+
+   const g = svg.append('g');
+
+   const minY = d3.min(realNodes, d => d.y) ?? 0;
+   const defaultOffsetX = containerWidth / 2 - (maxX + minX) / 2;
+   const defaultOffsetY = 80 - minY;
+
+   const zoom = d3.zoom()
+      .scaleExtent([0.15, 2.5])
+      .on('zoom', event => {
+         g.attr('transform', event.transform);
+         zoomTransformRef.current = event.transform;
+      });
+
+   svg.call(zoom);
+
+   if (zoomTransformRef.current) {
+      svg.call(zoom.transform, zoomTransformRef.current);
+   } else {
+      const initial = d3.zoomIdentity.translate(defaultOffsetX, defaultOffsetY);
+      svg.call(zoom.transform, initial);
+      zoomTransformRef.current = initial;
+   }
+
+   g.append('g')
+      .selectAll('path')
+      .data(root.links().filter(l => !l.target.data.isVirtualRoot && !l.source.data.isVirtualRoot))
+      .join('path')
+      .attr('d', d3.linkVertical().x(d => d.x).y(d => d.y))
+      .attr('fill', 'none')
+      .attr('stroke', '#cbd5e1')
+      .attr('stroke-width', 2);
+
+   const nodeGroups = g.selectAll('.imp-node')
+      .data(root.descendants())
+      .join('g')
+      .attr('class', 'imp-node')
+      .attr('transform', d => `translate(${d.x},${d.y})`);
+
+   // Virtual root: invisible anchor only.
+   nodeGroups.filter(d => d.data.isVirtualRoot === true)
+      .style('pointer-events', 'none');
+
+   const personNodes = nodeGroups.filter(d => !d.data.isVirtualRoot);
+
+   personNodes.each(function (d) {
+      const el = d3.select(this);
+      const dbId = d.data.dbId != null ? String(d.data.dbId) : null;
+      const isSel = !dbId || selectedDbIds.has(dbId);
+      const gender = d.data.gender;
+      const fill = gender === 'female' ? '#be185d' : gender === 'male' ? '#1e3a8a' : '#374151';
+      const opacity = isSel ? 1 : 0.22;
+
+      el.style('cursor', 'pointer');
+
+      // Outer selection ring
+      if (isSel) {
+         el.append('circle').attr('r', 48)
+            .attr('fill', 'none')
+            .attr('stroke', '#93c5fd').attr('stroke-width', 2)
+            .attr('stroke-dasharray', '5,3')
+            .style('pointer-events', 'none');
+      }
+
+      // Main circle
+      el.append('circle').attr('r', 42)
+         .attr('fill', fill)
+         .attr('stroke', '#fff').attr('stroke-width', 2.5)
+         .style('opacity', opacity)
+         .style('filter', isSel ? 'drop-shadow(0 4px 12px rgba(15,23,42,0.2))' : 'none');
+
+      // Initials
+      const initials = (d.data.name || 'U')
+         .split(/\s+/).filter(Boolean).map(p => p[0]).slice(0, 2).join('').toUpperCase() || 'U';
+      el.append('text')
+         .attr('text-anchor', 'middle').attr('dominant-baseline', 'middle').attr('y', 3)
+         .attr('fill', '#fff').attr('font-size', 18).attr('font-weight', 700)
+         .style('pointer-events', 'none').style('opacity', opacity)
+         .text(initials);
+
+      // Alive badge
+      el.append('circle').attr('r', 8).attr('cx', 32).attr('cy', 32)
+         .attr('fill', d.data.alive ? '#16a34a' : '#9ca3af')
+         .attr('stroke', '#fff').attr('stroke-width', 2)
+         .style('opacity', opacity);
+
+      // Generation badge
+      el.append('circle').attr('r', 12).attr('cx', 30).attr('cy', -30)
+         .attr('fill', '#FF6B35').attr('stroke', '#fff').attr('stroke-width', 2)
+         .style('opacity', opacity);
+      el.append('text')
+         .attr('text-anchor', 'middle').attr('dominant-baseline', 'middle').attr('x', 30).attr('y', -30)
+         .attr('fill', '#fff').attr('font-size', 11).attr('font-weight', 700)
+         .style('pointer-events', 'none').style('opacity', opacity)
+         .text(d.depth + 1);
+
+      // Name (up to 2 lines)
+      const words = (d.data.name || 'Unknown').split(/\s+/).filter(Boolean);
+      const line1 = words.slice(0, 2).join(' ');
+      const line2 = words.slice(2).join(' ');
+      el.append('text')
+         .attr('text-anchor', 'middle').attr('y', 60)
+         .attr('fill', isSel ? '#1f2937' : '#94a3b8')
+         .attr('font-size', 12).attr('font-weight', 600)
+         .style('pointer-events', 'none')
+         .text(line1.length > 18 ? line1.slice(0, 18) + '\u2026' : line1);
+      if (line2) {
+         el.append('text')
+            .attr('text-anchor', 'middle').attr('y', 76)
+            .attr('fill', isSel ? '#374151' : '#94a3b8').attr('font-size', 11)
+            .style('pointer-events', 'none')
+            .text(line2.length > 18 ? line2.slice(0, 18) + '\u2026' : line2);
+      }
+
+      // Spouse name(s)
+      if (d.data.spouse) {
+         const list = Array.isArray(d.data.spouse) ? d.data.spouse : [d.data.spouse];
+         const names = list.map(s => (s.name || '').split(/\s+/)[0]).join(', ');
+         const spouseY = line2 ? 92 : 76;
+         el.append('text')
+            .attr('text-anchor', 'middle').attr('y', spouseY)
+            .attr('fill', '#64748b').attr('font-size', 10)
+            .style('pointer-events', 'none').style('opacity', opacity)
+            .text('\u2665 ' + (names.length > 22 ? names.slice(0, 22) + '\u2026' : names));
+      }
+
+      // Toggle button (+/-)
+      const btn = el.append('g').attr('transform', 'translate(54, 0)');
+      btn.append('circle').attr('r', 12)
+         .attr('fill', isSel ? '#2563eb' : '#e2e8f0')
+         .attr('stroke', isSel ? '#1d4ed8' : '#94a3b8').attr('stroke-width', 1.5);
+      btn.append('text')
+         .attr('text-anchor', 'middle').attr('dominant-baseline', 'middle')
+         .attr('fill', isSel ? '#fff' : '#64748b').attr('font-size', 15).attr('font-weight', 700)
+         .style('pointer-events', 'none')
+         .text(isSel ? '\u2212' : '+');
+
+      // Click: toggle this branch
+      el.on('click', event => {
+         event.stopPropagation();
+         onToggleBranch(d.data);
+      });
+   });
+}
+
 
 export default function ImportChainTab({ selectedFamily, families, onImported }) {
    const [sourceFamilyId, setSourceFamilyId] = useState('');
-   const [personQuery, setPersonQuery] = useState('');
-   const [personSuggestions, setPersonSuggestions] = useState([]);
-   const [selectedRootPerson, setSelectedRootPerson] = useState(null);
-   const [generationLimit, setGenerationLimit] = useState(3);
-   const [includeSpouses, setIncludeSpouses] = useState(true);
-   const [includeFullSubtree, setIncludeFullSubtree] = useState(false);
    const [previewData, setPreviewData] = useState(null);
-   const [showPreviewModal, setShowPreviewModal] = useState(false);
+   const [selectedDbIds, setSelectedDbIds] = useState(new Set());
    const [loadingPreview, setLoadingPreview] = useState(false);
    const [loadingImport, setLoadingImport] = useState(false);
    const [error, setError] = useState('');
    const [success, setSuccess] = useState('');
+   const svgRef = useRef(null);
+   const zoomTransformRef = useRef(null);
 
    const sourceFamilies = useMemo(
       () => families.filter(f => f.id !== selectedFamily?.id),
       [families, selectedFamily]
    );
 
-   const canRun = Boolean(selectedFamily?.id && sourceFamilyId && selectedRootPerson?.id && Number(generationLimit) >= 1);
+   const handleToggleBranch = useCallback(nodeData => {
+      const branchIds = collectDbIds(nodeData);
+      setSelectedDbIds(prev => {
+         const next = new Set(prev);
+         const allSel = [...branchIds].every(id => next.has(id));
+         branchIds.forEach(id => allSel ? next.delete(id) : next.add(id));
+         return next;
+      });
+   }, []);
 
-   const buildPayload = () => ({
-      targetFamilyId: selectedFamily.id,
-      sourceFamilyId,
-      rootPersonId: selectedRootPerson.id,
-      generationLimit: Math.max(1, Number(generationLimit) || 1),
-      includeSpouses,
-      includeFullSubtree
-   });
+   useEffect(() => {
+      if (!previewData?.previewTree || !svgRef.current) return;
+      drawImportTree(
+         previewData.previewTree,
+         selectedDbIds,
+         handleToggleBranch,
+         svgRef.current,
+         zoomTransformRef
+      );
+   }, [previewData, selectedDbIds, handleToggleBranch]);
 
-   const handleRootSearch = async (query) => {
-      setPersonQuery(query);
-      setSelectedRootPerson(null);
-      setError('');
-      setSuccess('');
-      setPreviewData(null);
-
-      if (!sourceFamilyId || query.trim().length < 1) {
-         setPersonSuggestions([]);
-         return;
-      }
-
-      try {
-         const results = await searchPersonsInFamily(query.trim(), sourceFamilyId, 30);
-         setPersonSuggestions(results || []);
-      } catch (err) {
-         setError(err.message || 'Failed to search persons');
-         setPersonSuggestions([]);
-      }
-   };
-
-   const handleSelectSuggestion = (person) => {
-      setSelectedRootPerson(person);
-      setPersonQuery(person.name);
-      setPersonSuggestions([]);
-   };
-
-   const handlePreview = async () => {
-      if (!canRun) return;
+   const handleShowTree = async () => {
+      if (!sourceFamilyId || !selectedFamily?.id) return;
       setLoadingPreview(true);
       setError('');
       setSuccess('');
+      setPreviewData(null);
+      setSelectedDbIds(new Set());
+      zoomTransformRef.current = null;
       try {
-         const data = await previewFamilyChainImport(buildPayload());
+         const data = await previewFamilyChainImport({
+            targetFamilyId: selectedFamily.id,
+            sourceFamilyId,
+         });
          setPreviewData(data);
-         setShowPreviewModal(true);
+         setSelectedDbIds(collectDbIds(data.previewTree));
       } catch (err) {
-         setError(err.message || 'Failed to preview chain import');
+         setError(err.message || 'Failed to load source tree');
       } finally {
          setLoadingPreview(false);
       }
    };
 
    const handleImport = async () => {
-      if (!canRun) return;
+      if (!selectedFamily?.id || !sourceFamilyId || selectedDbIds.size === 0) return;
       setLoadingImport(true);
       setError('');
       setSuccess('');
       try {
-         const result = await importFamilyChain(buildPayload());
-         setSuccess(`Imported ${result.imported} members. ${result.alreadyLinked} were already linked.`);
+         const result = await importFamilyChain({
+            targetFamilyId: selectedFamily.id,
+            sourceFamilyId,
+            selectedPersonIds: Array.from(selectedDbIds),
+         });
+         setSuccess(
+            `Imported ${result.imported} member${result.imported !== 1 ? 's' : ''}. ` +
+            `${result.alreadyLinked} already linked.`
+         );
          if (onImported) await onImported();
       } catch (err) {
-         setError(err.message || 'Failed to import chain');
+         setError(err.message || 'Failed to import');
       } finally {
          setLoadingImport(false);
       }
    };
 
    return (
-      <div style={styles.wrap}>
-         <h3 style={styles.title}>Import Chain</h3>
-         <p style={styles.helpText}>
-            Reuse existing lineage from another family and link it to <strong>{selectedFamily?.name}</strong>.
+      <div style={S.wrap}>
+         <h3 style={S.title}>Import Chain</h3>
+         <p style={S.help}>
+            Select a source family, view its full tree, deselect any branches you don&apos;t need,
+            then click <strong>Import</strong> to link the selected persons into{' '}
+            <strong>{selectedFamily?.name}</strong>.
          </p>
 
-         <div style={styles.grid}>
-            <div style={styles.formGroup}>
-               <label style={styles.label}>Source Family</label>
+         {/* Source family picker + Show Tree */}
+         <div style={S.row}>
+            <div style={S.flex1}>
+               <label style={S.label}>Source Family</label>
                <select
                   value={sourceFamilyId}
-                  onChange={(e) => {
+                  onChange={e => {
                      setSourceFamilyId(e.target.value);
-                     setPersonQuery('');
-                     setSelectedRootPerson(null);
-                     setPersonSuggestions([]);
-                     setGenerationLimit(3);
                      setPreviewData(null);
+                     setSelectedDbIds(new Set());
                      setError('');
                      setSuccess('');
+                     zoomTransformRef.current = null;
                   }}
-                  style={styles.input}
+                  style={S.select}
                >
                   <option value="">Select source family...</option>
                   {sourceFamilies.map(f => (
-                     <option key={f.id} value={f.id}>{f.name}{f.region ? ` (${f.region})` : ''}</option>
+                     <option key={f.id} value={f.id}>
+                        {f.name}{f.region ? ` (${f.region})` : ''}
+                     </option>
                   ))}
                </select>
             </div>
-
-            <div style={styles.formGroup}>
-               <label style={styles.label}>Chain Root Person (from source family)</label>
-               <div style={styles.searchBox}>
-                  <input
-                     type="text"
-                     value={personQuery}
-                     onChange={(e) => handleRootSearch(e.target.value)}
-                     placeholder="Type person name..."
-                     style={styles.input}
-                     disabled={!sourceFamilyId}
-                  />
-                  {personSuggestions.length > 0 && (
-                     <div style={styles.suggestions}>
-                        {personSuggestions.map(person => (
-                           <div
-                              key={person.id}
-                              onClick={() => handleSelectSuggestion(person)}
-                              style={styles.suggestionItem}
-                           >
-                              <strong>{person.name}</strong>
-                              {person.fatherName ? <small style={styles.suggestionMeta}> • Father: {person.fatherName}</small> : null}
-                              {person.familyName ? <small style={styles.familyTag}>{person.familyName}</small> : null}
-                           </div>
-                        ))}
-                     </div>
-                  )}
-               </div>
-               {selectedRootPerson ? (
-                  <small style={styles.selectedHint}>Selected: {selectedRootPerson.name}</small>
-               ) : null}
-            </div>
-         </div>
-
-         <div style={styles.grid}>
-            <div style={styles.formGroup}>
-               <label style={styles.label}>Import Till Generation</label>
-               <input
-                  type="number"
-                  min="1"
-                  step="1"
-                  value={generationLimit}
-                  onChange={(e) => {
-                     const value = Number(e.target.value);
-                     setGenerationLimit(Number.isFinite(value) ? value : 1);
-                     setPreviewData(null);
-                     setError('');
-                     setSuccess('');
-                  }}
-                  style={styles.input}
-                  disabled={!sourceFamilyId}
-               />
-               <small style={styles.selectedHint}>Generation 1 = selected root person.</small>
-            </div>
-            <div style={styles.formGroup}>
-               <label style={styles.label}>Options</label>
-               <label style={styles.checkboxRow}>
-                  <input
-                     type="checkbox"
-                     checked={includeSpouses}
-                     onChange={(e) => {
-                        setIncludeSpouses(e.target.checked);
-                        setPreviewData(null);
-                     }}
-                  />
-                  Include spouses
-               </label>
-               <label style={styles.checkboxRow}>
-                  <input
-                     type="checkbox"
-                     checked={includeFullSubtree}
-                     onChange={(e) => {
-                        setIncludeFullSubtree(e.target.checked);
-                        setPreviewData(null);
-                     }}
-                  />
-                  Include full subtree (not only source family-linked members)
-               </label>
-            </div>
-         </div>
-
-         {previewData?.counts ? (
-            <div style={styles.statsBox}>
-               <div><strong>Descendants:</strong> {previewData.counts.descendants}</div>
-               <div><strong>Already linked:</strong> {previewData.counts.alreadyLinked}</div>
-               <div><strong>New links to create:</strong> {previewData.counts.toBeLinked}</div>
-            </div>
-         ) : null}
-
-         {error ? <div style={styles.errorBox}>{error}</div> : null}
-         {success ? <div style={styles.successBox}>{success}</div> : null}
-
-         <div style={styles.actions}>
             <button
-               type="button"
-               style={{ ...styles.button, ...styles.previewBtn }}
-               disabled={!canRun || loadingPreview || loadingImport}
-               onClick={handlePreview}
+               onClick={handleShowTree}
+               disabled={!sourceFamilyId || loadingPreview || loadingImport}
+               style={{ ...S.btn, ...S.btnPrimary, opacity: (!sourceFamilyId || loadingPreview) ? 0.55 : 1 }}
             >
-               {loadingPreview ? 'Previewing...' : 'Preview'}
-            </button>
-            <button
-               type="button"
-               style={{ ...styles.button, ...styles.importBtn }}
-               disabled={!canRun || loadingImport || loadingPreview}
-               onClick={handleImport}
-            >
-               {loadingImport ? 'Importing...' : 'Import'}
+               {loadingPreview ? 'Loading\u2026' : 'Show Tree'}
             </button>
          </div>
 
-         {showPreviewModal && (
-            <div style={styles.modalOverlay}>
-               <div style={styles.modalCard}>
-                  <div style={styles.modalHeader}>
-                     <h4 style={{ margin: 0 }}>Chain Preview</h4>
-                     <button
-                        style={styles.closeBtn}
-                        onClick={() => setShowPreviewModal(false)}
-                     >
-                        ✕
-                     </button>
-                  </div>
-                  <div style={styles.modalBody}>
-                     {previewData?.previewTree ? (
-                        <ul style={styles.treeList}>
-                           <TreeNode node={previewData.previewTree} />
-                        </ul>
-                     ) : (
-                        <div>No preview available.</div>
-                     )}
-                  </div>
+         {error && <div style={S.errorBox}>{error}</div>}
+         {success && <div style={S.successBox}>{success}</div>}
+
+         {previewData && (
+            <>
+               {/* Stats bar */}
+               <div style={S.statsBar}>
+                  <span><strong>Total persons in tree:</strong> {previewData.counts?.total}</span>
+                  <span><strong>Already in target:</strong> {previewData.counts?.alreadyLinked}</span>
+                  <span style={{ color: '#2563eb' }}>
+                     <strong>Selected for import:</strong> {selectedDbIds.size}
+                  </span>
                </div>
-            </div>
+
+               <p style={S.hint}>
+                  Click any node or <strong>&minus;</strong> button to deselect that person and all
+                  their descendants. Click again to re-select. Grayed-out nodes will not be imported.
+               </p>
+
+               {/* Tree viewport */}
+               <div style={S.treeContainer}>
+                  <svg ref={svgRef} style={S.treeSvg} />
+               </div>
+
+               {/* Footer actions */}
+               <div style={S.footer}>
+                  <button
+                     onClick={() => setSelectedDbIds(collectDbIds(previewData.previewTree))}
+                     style={{ ...S.btn, ...S.btnOutline }}
+                  >
+                     Select All
+                  </button>
+                  <button
+                     onClick={() => setSelectedDbIds(new Set())}
+                     style={{ ...S.btn, ...S.btnOutline }}
+                  >
+                     Deselect All
+                  </button>
+                  <button
+                     onClick={handleImport}
+                     disabled={loadingImport || selectedDbIds.size === 0}
+                     style={{
+                        ...S.btn, ...S.btnImport,
+                        opacity: (loadingImport || selectedDbIds.size === 0) ? 0.55 : 1,
+                     }}
+                  >
+                     {loadingImport
+                        ? 'Importing\u2026'
+                        : `Import ${selectedDbIds.size} member${selectedDbIds.size !== 1 ? 's' : ''}`}
+                  </button>
+               </div>
+            </>
          )}
       </div>
    );
 }
 
-const styles = {
+
+const S = {
    wrap: {
       background: '#f9f9f9',
       border: '1px solid #ddd',
-      borderRadius: '8px',
-      padding: '18px'
+      borderRadius: 8,
+      padding: 18,
    },
-   title: {
-      marginTop: 0,
-      marginBottom: '8px'
+   title: { marginTop: 0, marginBottom: 8 },
+   help: { marginTop: 0, marginBottom: 14, color: '#555', fontSize: 13, lineHeight: 1.5 },
+   row: { display: 'flex', gap: 12, alignItems: 'flex-end', marginBottom: 14 },
+   flex1: { flex: 1 },
+   label: { display: 'block', fontSize: 13, fontWeight: 600, marginBottom: 5 },
+   select: {
+      width: '100%', padding: '9px 10px', borderRadius: 4,
+      border: '1px solid #ccc', fontSize: 13, boxSizing: 'border-box',
    },
-   helpText: {
-      marginTop: 0,
-      marginBottom: '14px',
-      color: '#555'
+   btn: {
+      padding: '9px 18px', borderRadius: 4, fontWeight: 700,
+      fontSize: 13, cursor: 'pointer', whiteSpace: 'nowrap', border: 'none',
    },
-   grid: {
-      display: 'grid',
-      gridTemplateColumns: '1fr 1fr',
-      gap: '16px',
-      marginBottom: '12px'
-   },
-   formGroup: {
-      display: 'flex',
-      flexDirection: 'column',
-      gap: '6px'
-   },
-   label: {
-      fontSize: '13px',
-      fontWeight: '600'
-   },
-   input: {
-      width: '100%',
-      padding: '9px 10px',
-      borderRadius: '4px',
-      border: '1px solid #ccc',
-      boxSizing: 'border-box',
-      fontSize: '13px'
-   },
-   searchBox: {
-      position: 'relative'
-   },
-   suggestions: {
-      position: 'absolute',
-      left: 0,
-      right: 0,
-      top: '100%',
-      zIndex: 15,
-      border: '1px solid #ddd',
-      borderTop: 'none',
-      borderRadius: '0 0 6px 6px',
-      background: '#fff',
-      maxHeight: '240px',
-      overflowY: 'auto',
-      boxShadow: '0 2px 6px rgba(0,0,0,0.08)'
-   },
-   suggestionItem: {
-      padding: '10px',
-      borderBottom: '1px solid #efefef',
-      cursor: 'pointer',
-      fontSize: '12px'
-   },
-   suggestionMeta: {
-      marginLeft: '6px',
-      color: '#555'
-   },
-   familyTag: {
-      marginLeft: '8px',
-      display: 'inline-block',
-      padding: '1px 6px',
-      borderRadius: '3px',
-      border: '1px solid #b3d9e8',
-      background: '#e8f4f8',
-      color: '#0077b6',
-      fontSize: '10px'
-   },
-   selectedHint: {
-      color: '#2a5298',
-      fontSize: '12px'
-   },
-   muted: {
-      color: '#666',
-      fontSize: '11px'
-   },
-   checkboxRow: {
-      display: 'flex',
-      gap: '8px',
-      alignItems: 'center',
-      fontSize: '13px'
-   },
-   statsBox: {
-      display: 'grid',
-      gridTemplateColumns: 'repeat(5, minmax(120px, 1fr))',
-      gap: '8px',
-      border: '1px solid #c7dff6',
-      background: '#edf5ff',
-      borderRadius: '6px',
-      padding: '10px',
-      marginTop: '10px',
-      fontSize: '12px'
-   },
-   actions: {
-      display: 'flex',
-      justifyContent: 'flex-end',
-      gap: '10px',
-      marginTop: '14px'
-   },
-   button: {
-      border: 'none',
-      borderRadius: '4px',
-      padding: '9px 14px',
-      color: '#fff',
-      fontWeight: '600',
-      cursor: 'pointer'
-   },
-   previewBtn: {
-      background: '#007bff'
-   },
-   importBtn: {
-      background: '#28a745'
-   },
+   btnPrimary: { background: '#1e3a8a', color: '#fff' },
+   btnOutline: { background: '#fff', color: '#374151', border: '1px solid #d1d5db' },
+   btnImport: { background: '#16a34a', color: '#fff' },
    errorBox: {
-      marginTop: '10px',
-      border: '1px solid #f5c6cb',
-      background: '#f8d7da',
-      color: '#721c24',
-      padding: '10px',
-      borderRadius: '5px',
-      fontSize: '13px'
+      background: '#fee2e2', border: '1px solid #fca5a5',
+      padding: '10px 14px', borderRadius: 4, marginBottom: 10, color: '#991b1b', fontSize: 13,
    },
    successBox: {
-      marginTop: '10px',
-      border: '1px solid #c3e6cb',
-      background: '#d4edda',
-      color: '#155724',
-      padding: '10px',
-      borderRadius: '5px',
-      fontSize: '13px'
+      background: '#d1fae5', border: '1px solid #6ee7b7',
+      padding: '10px 14px', borderRadius: 4, marginBottom: 10, color: '#065f46', fontSize: 13,
    },
-   modalOverlay: {
-      position: 'fixed',
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      background: 'rgba(0,0,0,0.45)',
-      zIndex: 2000,
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center'
+   statsBar: {
+      background: '#eff6ff', border: '1px solid #bfdbfe',
+      borderRadius: 4, padding: '8px 14px', marginBottom: 10,
+      fontSize: 12, color: '#1e40af', display: 'flex', gap: 24, flexWrap: 'wrap',
    },
-   modalCard: {
-      width: 'min(900px, 94vw)',
-      maxHeight: '85vh',
-      background: '#fff',
-      borderRadius: '8px',
-      border: '1px solid #ddd',
-      display: 'flex',
-      flexDirection: 'column',
-      overflow: 'hidden'
+   hint: { fontSize: 12, color: '#64748b', marginTop: 0, marginBottom: 8 },
+   treeContainer: {
+      border: '1px solid #e2e8f0', borderRadius: 6,
+      overflow: 'hidden', background: '#fff', height: 560,
    },
-   modalHeader: {
-      display: 'flex',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-      padding: '12px 16px',
-      borderBottom: '1px solid #eee'
+   treeSvg: { display: 'block', width: '100%', height: '100%' },
+   footer: {
+      marginTop: 12, display: 'flex', justifyContent: 'flex-end', gap: 10, flexWrap: 'wrap',
    },
-   closeBtn: {
-      border: 'none',
-      background: 'none',
-      fontSize: '20px',
-      cursor: 'pointer'
-   },
-   modalBody: {
-      padding: '14px 16px',
-      overflow: 'auto'
-   },
-   treeList: {
-      margin: 0,
-      paddingLeft: '18px'
-   },
-   treeItem: {
-      marginBottom: '6px'
-   },
-   treeLabel: {
-      display: 'inline-flex',
-      gap: '8px',
-      alignItems: 'center',
-      flexWrap: 'wrap',
-      fontSize: '13px'
-   },
-   genBadge: {
-      fontSize: '10px',
-      padding: '2px 6px',
-      borderRadius: '10px',
-      background: '#eef2ff',
-      border: '1px solid #c7d2fe',
-      color: '#3730a3'
-   },
-   spouseInline: {
-      fontSize: '11px',
-      color: '#555'
-   }
 };
