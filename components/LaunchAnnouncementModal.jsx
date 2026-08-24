@@ -35,35 +35,17 @@ export default function LaunchAnnouncementModal() {
             {/* Divider */}
             <div style={styles.divider} />
 
-            {/* Body */}
+            {/* Body (concise) */}
             <div style={styles.body}>
                <p style={styles.para}>
-                  This platform is currently under active development. Our team is working
-                  diligently to compile, verify, and upload genealogical records of all family
-                  branches with the care and accuracy they deserve. Data is being added
-                  progressively following thorough review and authentication.
+                  This site is under active development. Some records may be incomplete.
                </p>
-               <p style={styles.para}>
-                  You may notice that some records are incomplete, pending, or not yet
-                  available. We appreciate your patience as we continue this work.
-               </p>
-               <div style={styles.contactBox}>
-                  <span style={styles.contactIcon}>✉</span>
-                  <span style={styles.contactText}>
-                     If you notice any missing, incorrect, or incomplete information, please
-                     reach out to us at{' '}
-                     <a href="mailto:ahmadmirani2026@gmail.com" style={styles.email}>
-                        ahmadmirani2026@gmail.com
-                     </a>
-                     . Your contribution helps us preserve this heritage accurately.
-                  </span>
-               </div>
             </div>
 
             {/* Footer */}
             <div style={styles.footer}>
                <button onClick={handleClose} style={styles.btn}>
-                  I Understand &mdash; Continue to Site
+                  Continue
                </button>
             </div>
          </div>
@@ -85,11 +67,14 @@ const styles = {
    },
    modal: {
       background: '#ffffff',
-      borderRadius: '14px',
-      maxWidth: '520px',
+      borderRadius: '12px',
+      maxWidth: '460px',
       width: '100%',
-      boxShadow: '0 25px 60px rgba(0, 0, 0, 0.35)',
+      boxShadow: '0 25px 60px rgba(0, 0, 0, 0.28)',
       overflow: 'hidden',
+      display: 'flex',
+      flexDirection: 'column',
+      maxHeight: '80vh',
    },
    header: {
       background: 'linear-gradient(135deg, #1e3a5f 0%, #2a5298 100%)',
@@ -127,7 +112,8 @@ const styles = {
       background: 'linear-gradient(90deg, #d4a832 0%, #f0c040 50%, #d4a832 100%)',
    },
    body: {
-      padding: '24px 30px',
+      padding: '18px 20px',
+      overflowY: 'auto',
    },
    para: {
       fontSize: '14px',
@@ -162,19 +148,20 @@ const styles = {
       textDecoration: 'none',
    },
    footer: {
-      padding: '18px 30px 24px',
+      padding: '12px 20px',
       textAlign: 'center',
       borderTop: '1px solid #f1f5f9',
+      flexShrink: 0,
    },
    btn: {
       background: 'linear-gradient(135deg, #1e3a5f 0%, #2a5298 100%)',
       color: '#ffffff',
       border: 'none',
       borderRadius: '8px',
-      padding: '11px 28px',
-      fontSize: '14px',
-      fontWeight: 600,
+      padding: '10px 20px',
+      fontSize: '15px',
+      fontWeight: 700,
       cursor: 'pointer',
-      letterSpacing: '0.3px',
+      letterSpacing: '0.2px',
    },
 };
