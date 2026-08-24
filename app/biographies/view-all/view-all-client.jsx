@@ -125,7 +125,7 @@ export default function ViewAllBiographiesClient() {
                         <thead>
                            <tr>
                               <th>Name</th>
-                              <th>Father's Name</th>
+                              <th>Father&apos;s Name</th>
                               <th>Birth - Death</th>
                               <th>Action</th>
                            </tr>

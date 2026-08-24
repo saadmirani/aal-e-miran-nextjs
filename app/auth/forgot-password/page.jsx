@@ -42,10 +42,10 @@ export default function ForgotPasswordPage() {
                <div className="success-message">
                   <h2>Email Sent!</h2>
                   <p>
-                     We've sent a password reset link to <strong>{email}</strong>. Check your email inbox and
+                     We&apos;ve sent a password reset link to <strong>{email}</strong>. Check your email inbox and
                      click the link to create a new password.
                   </p>
-                  <p className="info-text">If you don't see the email, check your spam or junk folder.</p>
+                  <p className="info-text">If you don&apos;t see the email, check your spam or junk folder.</p>
                   <button
                      className="link-button"
                      onClick={() => {

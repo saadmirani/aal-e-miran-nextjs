@@ -352,7 +352,7 @@ export default function AdminsModal({ isOpen, onClose, onAdminsUpdate }) {
                      </div>
                      <p className="text-muted small">
                         <i className="fas fa-info-circle me-1"></i>
-                        You can send this link via email, message, or however you prefer. They'll click it to set their password.
+                        You can send this link via email, message, or however you prefer. They&apos;ll click it to set their password.
                      </p>
                      <div className="d-flex justify-content-end">
                         <button className="btn btn-primary" onClick={() => setView('list')}>

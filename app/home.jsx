@@ -91,7 +91,7 @@ export default function Home() {
 
          {/* Future Plans Section */}
          <section className="section future-section">
-            <h2>What's Coming Next</h2>
+            <h2>What&apos;s Coming Next</h2>
             <div className="timeline">
                <div className="timeline-item">
                   <div className="timeline-dot"></div>

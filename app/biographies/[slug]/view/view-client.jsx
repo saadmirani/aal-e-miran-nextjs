@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import './view.css';
 
@@ -14,13 +14,7 @@ export default function ViewBiographyClient() {
    const [error, setError] = useState('');
    const [language, setLanguage] = useState('english');
 
-   useEffect(() => {
-      if (bioId) {
-         fetchBiography();
-      }
-   }, [bioId]);
-
-   const fetchBiography = async () => {
+   const fetchBiography = useCallback(async () => {
       try {
          setLoading(true);
          const response = await fetch(`/api/biographies/${bioId}`);
@@ -38,7 +32,13 @@ export default function ViewBiographyClient() {
       } finally {
          setLoading(false);
       }
-   };
+   }, [bioId]);
+
+   useEffect(() => {
+      if (bioId) {
+         fetchBiography();
+      }
+   }, [bioId, fetchBiography]);
 
    const handleGoHome = () => {
       window.location.href = '/';

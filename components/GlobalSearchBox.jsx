@@ -173,7 +173,7 @@ export default function GlobalSearchBox() {
                         </ul>
                      </>
                   ) : noResults ? (
-                     <div className="search-no-results">No results for "{query}"</div>
+                     <div className="search-no-results">No results for &quot;{query}&quot;</div>
                   ) : null}
                </div>
             )}
